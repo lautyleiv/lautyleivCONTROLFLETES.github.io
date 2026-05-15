@@ -73,7 +73,10 @@
       overflow-y: auto;
     }
 
-    html[data-theme="dark"] .sidebar { background: linear-gradient(180deg, #020617, #0f172a); border-right: 1px solid var(--line); }
+    html[data-theme="dark"] .sidebar {
+      background: linear-gradient(180deg, #020617, #0f172a);
+      border-right: 1px solid var(--line);
+    }
 
     .brand { display: flex; gap: 12px; align-items: center; margin-bottom: 28px; }
 
@@ -124,7 +127,7 @@
     .kpi { display: flex; justify-content: space-between; align-items: center; min-height: 96px; }
     .kpi .label { color: var(--muted); font-size: 13px; font-weight: 700; }
     .kpi .value { font-size: 28px; font-weight: 900; margin-top: 5px; }
-    .kpi .icon { width: 46px; height: 46px; border-radius: 15px; display: grid; place-items: center; background: rgba(37, 99, 235, .12); font-size: 24px; }
+    .kpi .icon { width: 46px; height: 46px; border-radius: 15px; display: grid; place-items: center; background: rgba(37,99,235,.12); font-size: 24px; }
 
     .section-title { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; }
     .section-title h3 { margin: 0; font-size: 17px; }
@@ -186,12 +189,6 @@
     .bar-track { height: 13px; background: rgba(100,116,139,.16); border-radius: 999px; overflow: hidden; border: 1px solid var(--line); }
     .bar { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--primary), var(--cyan)); min-width: 4px; }
     .chart-total { color: var(--muted); font-size: 12px; margin-top: 8px; }
-    .donut-wrap { display: grid; grid-template-columns: 150px 1fr; gap: 18px; align-items: center; }
-    .donut { width: 150px; height: 150px; border-radius: 50%; background: conic-gradient(var(--primary) 0 35%, var(--green) 35% 70%, var(--yellow) 70% 100%); position: relative; }
-    .donut::after { content: ''; position: absolute; inset: 35px; background: var(--card); border-radius: 50%; border: 1px solid var(--line); }
-    .legend { display: grid; gap: 8px; }
-    .legend-item { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; }
-    .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--primary); }
 
     .route-card { border: 1px solid var(--line); border-radius: 16px; padding: 14px; background: var(--card); display: grid; gap: 8px; }
     .route-card strong { font-size: 15px; }
@@ -219,7 +216,6 @@
       .calendar { grid-template-columns: 1fr; }
       .day-name { display: none; }
       .day { min-height: auto; }
-      .donut-wrap { grid-template-columns: 1fr; justify-items: center; }
     }
   </style>
 </head>
@@ -622,27 +618,66 @@
       select.innerHTML = active.length ? active.map(t => `<option value="${t.id}">${t.plate} - ${t.driver}</option>`).join('') : '<option value="">Sin transportes activos</option>';
     }
 
-    function destinationOptions(selected = '') { return db.places.map(p => `<option value="${p.name}" ${p.name === selected ? 'selected' : ''}>${p.name}${p.zone ? ' · ' + p.zone : ''}</option>`).join(''); }
+    function destinationOptions(selected = '') {
+      return db.places.map(p => `<option value="${p.name}" ${p.name === selected ? 'selected' : ''}>${p.name}${p.zone ? ' · ' + p.zone : ''}</option>`).join('');
+    }
 
     function openTripModal(id = null) {
-      renderTripSelects(); document.getElementById('tripForm').reset(); document.getElementById('tripId').value = id || ''; document.getElementById('tripModalTitle').textContent = id ? 'Editar viaje' : 'Nuevo viaje';
+      renderTripSelects();
+      document.getElementById('tripForm').reset();
+      document.getElementById('tripId').value = id || '';
+      document.getElementById('tripModalTitle').textContent = id ? 'Editar viaje' : 'Nuevo viaje';
       if (id) {
         const t = db.trips.find(x => x.id === id);
-        document.getElementById('tripCompany').value = t.companyId; renderTripTransportSelect();
-        document.getElementById('tripTransport').value = t.transportId; document.getElementById('tripDate').value = t.date; document.getElementById('tripFrequency').value = t.frequency; document.getElementById('tripEveryDays').value = t.everyDays || 3; document.getElementById('tripAmount').value = t.amount || 0; document.getElementById('tripStatus').value = t.status; document.getElementById('tripPayment').value = t.payment; document.getElementById('tripOrigin').value = t.origin; document.getElementById('tripGroup').value = t.group || ''; document.getElementById('tripNotes').value = t.notes || ''; setDestinationSelects(t.destinations || []);
+        document.getElementById('tripCompany').value = t.companyId;
+        renderTripTransportSelect();
+        document.getElementById('tripTransport').value = t.transportId;
+        document.getElementById('tripDate').value = t.date;
+        document.getElementById('tripFrequency').value = t.frequency;
+        document.getElementById('tripEveryDays').value = t.everyDays || 3;
+        document.getElementById('tripAmount').value = t.amount || 0;
+        document.getElementById('tripStatus').value = t.status;
+        document.getElementById('tripPayment').value = t.payment;
+        document.getElementById('tripOrigin').value = t.origin;
+        document.getElementById('tripGroup').value = t.group || '';
+        document.getElementById('tripNotes').value = t.notes || '';
+        setDestinationSelects(t.destinations || []);
       } else {
-        document.getElementById('tripDate').value = todayISO(); setDestinationSelects(['']);
+        document.getElementById('tripDate').value = todayISO();
+        setDestinationSelects(['']);
       }
-      toggleCustomDays(); document.getElementById('tripModal').classList.add('show');
+      toggleCustomDays();
+      document.getElementById('tripModal').classList.add('show');
     }
 
     function closeTripModal() { document.getElementById('tripModal').classList.remove('show'); }
     function toggleCustomDays() { document.getElementById('customDaysField').style.display = document.getElementById('tripFrequency').value === 'cada_x' ? 'grid' : 'none'; }
 
-    function setDestinationSelects(destinations) { const box = document.getElementById('destinationsList'); box.innerHTML = ''; (destinations.length ? destinations : ['']).forEach(d => addDestinationSelect(d)); }
-    function addDestinationSelect(value = '') { const box = document.getElementById('destinationsList'); const row = document.createElement('div'); row.className = 'destination-row'; row.innerHTML = `<div class="num"></div><select class="destinationInput">${destinationOptions(value)}</select><button type="button" class="btn danger small" onclick="removeDestination(this)">×</button>`; box.appendChild(row); refreshDestinationNumbers(); }
-    function removeDestination(btn) { const box = document.getElementById('destinationsList'); if (box.children.length <= 1) return toast('Debe quedar al menos un destino.'); btn.closest('.destination-row').remove(); refreshDestinationNumbers(); }
-    function refreshDestinationNumbers() { document.querySelectorAll('.destination-row').forEach((row, i) => row.querySelector('.num').textContent = i + 1); }
+    function setDestinationSelects(destinations) {
+      const box = document.getElementById('destinationsList');
+      box.innerHTML = '';
+      (destinations.length ? destinations : ['']).forEach(d => addDestinationSelect(d));
+    }
+
+    function addDestinationSelect(value = '') {
+      const box = document.getElementById('destinationsList');
+      const row = document.createElement('div');
+      row.className = 'destination-row';
+      row.innerHTML = `<div class="num"></div><select class="destinationInput">${destinationOptions(value)}</select><button type="button" class="btn danger small" onclick="removeDestination(this)">×</button>`;
+      box.appendChild(row);
+      refreshDestinationNumbers();
+    }
+
+    function removeDestination(btn) {
+      const box = document.getElementById('destinationsList');
+      if (box.children.length <= 1) return toast('Debe quedar al menos un destino.');
+      btn.closest('.destination-row').remove();
+      refreshDestinationNumbers();
+    }
+
+    function refreshDestinationNumbers() {
+      document.querySelectorAll('.destination-row').forEach((row, i) => row.querySelector('.num').textContent = i + 1);
+    }
 
     function saveTrip(e) {
       e.preventDefault();
@@ -650,37 +685,191 @@
       if (!destinations.length) return toast('Agregá al menos un destino.');
       const origin = document.getElementById('tripOrigin').value;
       const route = `${origin} → ${destinations.join(' → ')}`;
-      const item = { id: document.getElementById('tripId').value || uid(), companyId: document.getElementById('tripCompany').value, transportId: document.getElementById('tripTransport').value, date: document.getElementById('tripDate').value, frequency: document.getElementById('tripFrequency').value, everyDays: Number(document.getElementById('tripEveryDays').value || 0), amount: Number(document.getElementById('tripAmount').value || 0), status: document.getElementById('tripStatus').value, payment: document.getElementById('tripPayment').value, origin, destinations, group: document.getElementById('tripGroup').value.trim() || route, notes: document.getElementById('tripNotes').value.trim() };
-      const ix = db.trips.findIndex(t => t.id === item.id); if (ix >= 0) db.trips[ix] = item; else db.trips.push(item);
-      saveDB(); closeTripModal(); toast('Viaje guardado correctamente.');
+      const item = {
+        id: document.getElementById('tripId').value || uid(),
+        companyId: document.getElementById('tripCompany').value,
+        transportId: document.getElementById('tripTransport').value,
+        date: document.getElementById('tripDate').value,
+        frequency: document.getElementById('tripFrequency').value,
+        everyDays: Number(document.getElementById('tripEveryDays').value || 0),
+        amount: Number(document.getElementById('tripAmount').value || 0),
+        status: document.getElementById('tripStatus').value,
+        payment: document.getElementById('tripPayment').value,
+        origin,
+        destinations,
+        group: document.getElementById('tripGroup').value.trim() || route,
+        notes: document.getElementById('tripNotes').value.trim()
+      };
+      const ix = db.trips.findIndex(t => t.id === item.id);
+      if (ix >= 0) db.trips[ix] = item; else db.trips.push(item);
+      saveDB();
+      closeTripModal();
+      toast('Viaje guardado correctamente.');
     }
-    function deleteTrip(id) { if (!confirm('¿Borrar este viaje?')) return; db.trips = db.trips.filter(t => t.id !== id); saveDB(); }
 
-    function saveCompany(e) { e.preventDefault(); const item = { id: document.getElementById('companyId').value || uid(), name: document.getElementById('companyName').value.trim(), phone: document.getElementById('companyPhone').value.trim(), address: document.getElementById('companyAddress').value.trim(), email: document.getElementById('companyEmail').value.trim() }; const ix = db.companies.findIndex(c => c.id === item.id); if (ix >= 0) db.companies[ix] = item; else db.companies.push(item); document.getElementById('companyForm').reset(); document.getElementById('companyId').value = ''; document.getElementById('companyFormTitle').textContent = 'Agregar empresa'; saveDB(); toast('Empresa guardada.'); }
-    function editCompany(id) { const c = db.companies.find(x => x.id === id); document.getElementById('companyFormTitle').textContent = 'Editar empresa'; document.getElementById('companyId').value = c.id; document.getElementById('companyName').value = c.name; document.getElementById('companyPhone').value = c.phone; document.getElementById('companyAddress').value = c.address; document.getElementById('companyEmail').value = c.email; }
-    function deleteCompany(id) { if (db.trips.some(t => t.companyId === id) || db.transports.some(t => t.companyId === id)) return toast('No se puede borrar: hay viajes o transportes asociados a esta empresa.'); if (!confirm('¿Borrar esta empresa?')) return; db.companies = db.companies.filter(c => c.id !== id); saveDB(); }
+    function deleteTrip(id) {
+      if (!confirm('¿Borrar este viaje?')) return;
+      db.trips = db.trips.filter(t => t.id !== id);
+      saveDB();
+    }
 
-    function saveTransport(e) { e.preventDefault(); const item = { id: document.getElementById('transportId').value || uid(), companyId: document.getElementById('transportCompany').value, plate: document.getElementById('transportPlate').value.trim(), driver: document.getElementById('transportDriver').value.trim(), type: document.getElementById('transportType').value, capacity: document.getElementById('transportCapacity').value.trim(), status: document.getElementById('transportStatus').value }; const ix = db.transports.findIndex(t => t.id === item.id); if (ix >= 0) db.transports[ix] = item; else db.transports.push(item); document.getElementById('transportForm').reset(); document.getElementById('transportId').value = ''; document.getElementById('transportFormTitle').textContent = 'Agregar transporte'; saveDB(); toast('Transporte guardado.'); }
-    function editTransport(id) { const t = db.transports.find(x => x.id === id); document.getElementById('transportFormTitle').textContent = 'Editar transporte'; document.getElementById('transportId').value = t.id; document.getElementById('transportCompany').value = t.companyId; document.getElementById('transportPlate').value = t.plate; document.getElementById('transportDriver').value = t.driver; document.getElementById('transportType').value = t.type; document.getElementById('transportCapacity').value = t.capacity; document.getElementById('transportStatus').value = t.status; }
-    function deleteTransport(id) { if (db.trips.some(t => t.transportId === id)) return toast('No se puede borrar: hay viajes usando este transporte. Podés ponerlo inactivo.'); if (!confirm('¿Borrar este transporte?')) return; db.transports = db.transports.filter(t => t.id !== id); saveDB(); }
+    function saveCompany(e) {
+      e.preventDefault();
+      const item = {
+        id: document.getElementById('companyId').value || uid(),
+        name: document.getElementById('companyName').value.trim(),
+        phone: document.getElementById('companyPhone').value.trim(),
+        address: document.getElementById('companyAddress').value.trim(),
+        email: document.getElementById('companyEmail').value.trim()
+      };
+      const ix = db.companies.findIndex(c => c.id === item.id);
+      if (ix >= 0) db.companies[ix] = item; else db.companies.push(item);
+      document.getElementById('companyForm').reset();
+      document.getElementById('companyId').value = '';
+      document.getElementById('companyFormTitle').textContent = 'Agregar empresa';
+      saveDB();
+      toast('Empresa guardada.');
+    }
 
-    function savePlace(e) { e.preventDefault(); const item = { id: document.getElementById('placeId').value || uid(), name: document.getElementById('placeName').value.trim(), zone: document.getElementById('placeZone').value.trim() }; const ix = db.places.findIndex(p => p.id === item.id); if (ix >= 0) db.places[ix] = item; else db.places.push(item); document.getElementById('placeForm').reset(); document.getElementById('placeId').value = ''; document.getElementById('placeFormTitle').textContent = 'Agregar destino'; saveDB(); toast('Destino guardado.'); }
-    function editPlace(id) { const p = db.places.find(x => x.id === id); document.getElementById('placeFormTitle').textContent = 'Editar destino'; document.getElementById('placeId').value = p.id; document.getElementById('placeName').value = p.name; document.getElementById('placeZone').value = p.zone; }
-    function deletePlace(id) { const p = db.places.find(x => x.id === id); if (db.trips.some(t => t.origin === p.name || (t.destinations || []).includes(p.name))) return toast('No se puede borrar: hay viajes usando este destino.'); if (!confirm('¿Borrar este destino?')) return; db.places = db.places.filter(p => p.id !== id); saveDB(); }
+    function editCompany(id) {
+      const c = db.companies.find(x => x.id === id);
+      document.getElementById('companyFormTitle').textContent = 'Editar empresa';
+      document.getElementById('companyId').value = c.id;
+      document.getElementById('companyName').value = c.name;
+      document.getElementById('companyPhone').value = c.phone;
+      document.getElementById('companyAddress').value = c.address;
+      document.getElementById('companyEmail').value = c.email;
+    }
 
-    function togglePayment(id) { const t = db.trips.find(x => x.id === id); t.payment = t.payment === 'pagado' ? 'pendiente' : 'pagado'; saveDB(); }
+    function deleteCompany(id) {
+      if (db.trips.some(t => t.companyId === id) || db.transports.some(t => t.companyId === id)) return toast('No se puede borrar: hay viajes o transportes asociados a esta empresa.');
+      if (!confirm('¿Borrar esta empresa?')) return;
+      db.companies = db.companies.filter(c => c.id !== id);
+      saveDB();
+    }
+
+    function saveTransport(e) {
+      e.preventDefault();
+      const item = {
+        id: document.getElementById('transportId').value || uid(),
+        companyId: document.getElementById('transportCompany').value,
+        plate: document.getElementById('transportPlate').value.trim(),
+        driver: document.getElementById('transportDriver').value.trim(),
+        type: document.getElementById('transportType').value,
+        capacity: document.getElementById('transportCapacity').value.trim(),
+        status: document.getElementById('transportStatus').value
+      };
+      const ix = db.transports.findIndex(t => t.id === item.id);
+      if (ix >= 0) db.transports[ix] = item; else db.transports.push(item);
+      document.getElementById('transportForm').reset();
+      document.getElementById('transportId').value = '';
+      document.getElementById('transportFormTitle').textContent = 'Agregar transporte';
+      saveDB();
+      toast('Transporte guardado.');
+    }
+
+    function editTransport(id) {
+      const t = db.transports.find(x => x.id === id);
+      document.getElementById('transportFormTitle').textContent = 'Editar transporte';
+      document.getElementById('transportId').value = t.id;
+      document.getElementById('transportCompany').value = t.companyId;
+      document.getElementById('transportPlate').value = t.plate;
+      document.getElementById('transportDriver').value = t.driver;
+      document.getElementById('transportType').value = t.type;
+      document.getElementById('transportCapacity').value = t.capacity;
+      document.getElementById('transportStatus').value = t.status;
+    }
+
+    function deleteTransport(id) {
+      if (db.trips.some(t => t.transportId === id)) return toast('No se puede borrar: hay viajes usando este transporte. Podés ponerlo inactivo.');
+      if (!confirm('¿Borrar este transporte?')) return;
+      db.transports = db.transports.filter(t => t.id !== id);
+      saveDB();
+    }
+
+    function savePlace(e) {
+      e.preventDefault();
+      const item = {
+        id: document.getElementById('placeId').value || uid(),
+        name: document.getElementById('placeName').value.trim(),
+        zone: document.getElementById('placeZone').value.trim()
+      };
+      const ix = db.places.findIndex(p => p.id === item.id);
+      if (ix >= 0) db.places[ix] = item; else db.places.push(item);
+      document.getElementById('placeForm').reset();
+      document.getElementById('placeId').value = '';
+      document.getElementById('placeFormTitle').textContent = 'Agregar destino';
+      saveDB();
+      toast('Destino guardado.');
+    }
+
+    function editPlace(id) {
+      const p = db.places.find(x => x.id === id);
+      document.getElementById('placeFormTitle').textContent = 'Editar destino';
+      document.getElementById('placeId').value = p.id;
+      document.getElementById('placeName').value = p.name;
+      document.getElementById('placeZone').value = p.zone;
+    }
+
+    function deletePlace(id) {
+      const p = db.places.find(x => x.id === id);
+      if (db.trips.some(t => t.origin === p.name || (t.destinations || []).includes(p.name))) return toast('No se puede borrar: hay viajes usando este destino.');
+      if (!confirm('¿Borrar este destino?')) return;
+      db.places = db.places.filter(p => p.id !== id);
+      saveDB();
+    }
+
+    function togglePayment(id) {
+      const t = db.trips.find(x => x.id === id);
+      t.payment = t.payment === 'pagado' ? 'pendiente' : 'pagado';
+      saveDB();
+    }
 
     function renderCalendar() {
-      const input = document.getElementById('calendarMonth'); if (!input.value) input.value = new Date().toISOString().slice(0,7);
-      const [year, month] = input.value.split('-').map(Number); const first = new Date(year, month - 1, 1); const last = new Date(year, month, 0); const startDay = first.getDay(); const grid = document.getElementById('calendarGrid'); const names = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
-      let html = names.map(n => `<div class="day-name">${n}</div>`).join(''); for (let i = 0; i < startDay; i++) html += `<div class="day"></div>`;
-      for (let d = 1; d <= last.getDate(); d++) { const iso = `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`; const events = db.trips.filter(t => t.date === iso); html += `<div class="day"><div class="day-number">${d}</div>${events.map(t => `<span class="event-pill">${getCompany(t.companyId).name}: ${routeOf(t)}</span>`).join('')}</div>`; }
+      const input = document.getElementById('calendarMonth');
+      if (!input.value) input.value = new Date().toISOString().slice(0,7);
+      const [year, month] = input.value.split('-').map(Number);
+      const first = new Date(year, month - 1, 1);
+      const last = new Date(year, month, 0);
+      const startDay = first.getDay();
+      const grid = document.getElementById('calendarGrid');
+      const names = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+      let html = names.map(n => `<div class="day-name">${n}</div>`).join('');
+      for (let i = 0; i < startDay; i++) html += `<div class="day"></div>`;
+      for (let d = 1; d <= last.getDate(); d++) {
+        const iso = `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const events = db.trips.filter(t => t.date === iso);
+        html += `<div class="day"><div class="day-number">${d}</div>${events.map(t => `<span class="event-pill">${getCompany(t.companyId).name}: ${routeOf(t)}</span>`).join('')}</div>`;
+      }
       grid.innerHTML = html;
     }
 
-    function exportData() { const data = JSON.stringify(db, null, 2); navigator.clipboard?.writeText(data); document.getElementById('importBox').value = data; toast('Backup copiado y pegado en el cuadro de importación.'); }
-    function importData() { try { const data = JSON.parse(document.getElementById('importBox').value); if (!data.companies || !data.transports || !data.trips || !data.places) throw new Error('Formato inválido'); db = data; saveDB(); toast('Datos importados correctamente.'); } catch (e) { toast('JSON inválido. Revisá el texto pegado.'); } }
-    function resetData() { if (!confirm('Esto borra todos los datos cargados. ¿Continuar?')) return; localStorage.removeItem(STORAGE_KEY); db = loadData(); renderAll(); toast('Base reiniciada.'); }
+    function exportData() {
+      const data = JSON.stringify(db, null, 2);
+      navigator.clipboard?.writeText(data);
+      document.getElementById('importBox').value = data;
+      toast('Backup copiado y pegado en el cuadro de importación.');
+    }
+
+    function importData() {
+      try {
+        const data = JSON.parse(document.getElementById('importBox').value);
+        if (!data.companies || !data.transports || !data.trips || !data.places) throw new Error('Formato inválido');
+        db = data;
+        saveDB();
+        toast('Datos importados correctamente.');
+      } catch (e) {
+        toast('JSON inválido. Revisá el texto pegado.');
+      }
+    }
+
+    function resetData() {
+      if (!confirm('Esto borra todos los datos cargados. ¿Continuar?')) return;
+      localStorage.removeItem(STORAGE_KEY);
+      db = loadData();
+      renderAll();
+      toast('Base reiniciada.');
+    }
 
     function toggleTheme() {
       const root = document.documentElement;
@@ -689,7 +878,12 @@
       localStorage.setItem('control_viajes_theme', dark ? 'light' : 'dark');
     }
 
-    function toast(msg) { const el = document.getElementById('toast'); el.textContent = msg; el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 2600); }
+    function toast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 2600);
+    }
 
     const savedTheme = localStorage.getItem('control_viajes_theme');
     if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
