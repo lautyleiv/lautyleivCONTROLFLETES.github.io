@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sistema de Gestión de Fletes</title>
+  <title>Control de Viajes y Transportes</title>
   <style>
     :root {
       --bg: #f3f6fb;
@@ -366,16 +366,16 @@
       <div class="brand">
         <div class="brand-icon">🚚</div>
         <div>
-          <h1>Fletes<br>Mi Negocio</h1>
-          <span>Sistema de gestión</span>
+          <h1>Viajes<br>Contratados</h1>
+          <span>Control de transportes</span>
         </div>
       </div>
 
       <nav class="nav">
         <button class="active" data-tab="dashboard">📊 Dashboard</button>
-        <button data-tab="fletes">🚛 Fletes</button>
+        <button data-tab="viajes">🚛 Viajes</button>
         <button data-tab="transportes">🚚 Transportes</button>
-        <button data-tab="clientes">👥 Clientes</button>
+        <button data-tab="empresas">🏢 Empresas</button>
         <button data-tab="calendario">📅 Calendario</button>
         <button data-tab="pagos">💵 Pagos</button>
         <button data-tab="reportes">📈 Reportes</button>
@@ -387,17 +387,17 @@
       <header class="topbar">
         <div>
           <h2 id="pageTitle">Dashboard</h2>
-          <p>Controlá fletes diarios, semanales o cada X cantidad de días, con multidestinos y transportes editables.</p>
+          <p>Controlá los viajes que hacen las empresas de transporte para vos: diarios, semanales o cada X días, con multidestinos, pagos y seguimiento por proveedor.</p>
         </div>
         <div class="actions">
           <button class="btn secondary" onclick="toggleTheme()">🌗 Modo claro/oscuro</button>
-          <button class="btn" onclick="openFreightModal()">+ Nuevo flete</button>
+          <button class="btn" onclick="openFreightModal()">+ Nuevo viaje</button>
         </div>
       </header>
 
       <section class="tab active" id="dashboard">
         <div class="grid kpis">
-          <div class="card kpi"><div><div class="label">Fletes activos</div><div class="value" id="kpiActive">0</div></div><div class="icon">🚛</div></div>
+          <div class="card kpi"><div><div class="label">Viajes activos</div><div class="value" id="kpiActive">0</div></div><div class="icon">🚛</div></div>
           <div class="card kpi"><div><div class="label">Transportes activos</div><div class="value" id="kpiTransport">0</div></div><div class="icon">🚚</div></div>
           <div class="card kpi"><div><div class="label">Programados</div><div class="value" id="kpiScheduled">0</div></div><div class="icon">📅</div></div>
           <div class="card kpi"><div><div class="label">Ingresos del mes</div><div class="value" id="kpiIncome">$0</div></div><div class="icon">💵</div></div>
@@ -406,8 +406,8 @@
 
         <div class="grid two">
           <div class="card">
-            <div class="section-title"><h3>Próximos fletes programados</h3><span>Ordenados por fecha</span></div>
-            <div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Cliente</th><th>Ruta</th><th>Frecuencia</th><th>Transporte</th><th>Estado</th></tr></thead><tbody id="upcomingTable"></tbody></table></div>
+            <div class="section-title"><h3>Próximos viajes programados</h3><span>Ordenados por fecha</span></div>
+            <div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Empresa</th><th>Ruta</th><th>Frecuencia</th><th>Transporte</th><th>Estado</th></tr></thead><tbody id="upcomingTable"></tbody></table></div>
           </div>
           <div class="card">
             <div class="section-title"><h3>Resumen rápido</h3><span>Estado general</span></div>
@@ -416,13 +416,13 @@
         </div>
       </section>
 
-      <section class="tab" id="fletes">
+      <section class="tab" id="viajes">
         <div class="card">
           <div class="toolbar">
-            <input class="search" id="freightSearch" placeholder="Buscar por cliente, origen, destino o transporte..." oninput="renderFreights()" />
-            <button class="btn" onclick="openFreightModal()">+ Agregar flete</button>
+            <input class="search" id="freightSearch" placeholder="Buscar por empresa, origen, destino o transporte..." oninput="renderFreights()" />
+            <button class="btn" onclick="openFreightModal()">+ Agregar viaje</button>
           </div>
-          <div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Cliente</th><th>Ruta</th><th>Frecuencia</th><th>Monto</th><th>Transporte</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="freightsTable"></tbody></table></div>
+          <div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Empresa</th><th>Ruta</th><th>Frecuencia</th><th>Monto</th><th>Transporte</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="freightsTable"></tbody></table></div>
         </div>
       </section>
 
@@ -449,22 +449,22 @@
         </div>
       </section>
 
-      <section class="tab" id="clientes">
+      <section class="tab" id="empresas">
         <div class="grid two">
           <div class="card">
-            <div class="section-title"><h3>Clientes</h3><span>Agenda básica</span></div>
+            <div class="section-title"><h3>Empresas de transporte</h3><span>Proveedores que realizan tus viajes</span></div>
             <div class="table-wrap"><table><thead><tr><th>Nombre</th><th>Teléfono</th><th>Dirección</th><th>Acciones</th></tr></thead><tbody id="clientsTable"></tbody></table></div>
           </div>
           <div class="card">
-            <div class="section-title"><h3 id="clientFormTitle">Agregar cliente</h3></div>
+            <div class="section-title"><h3 id="clientFormTitle">Agregar empresa</h3></div>
             <form id="clientForm" onsubmit="saveClient(event)">
               <input type="hidden" id="clientId" />
               <div class="form-grid one">
-                <div class="field"><label>Nombre</label><input id="clientName" required placeholder="Nombre o razón social" /></div>
-                <div class="field"><label>Teléfono</label><input id="clientPhone" placeholder="Teléfono" /></div>
-                <div class="field"><label>Dirección</label><input id="clientAddress" placeholder="Dirección" /></div>
+                <div class="field"><label>Nombre de la empresa</label><input id="clientName" required placeholder="Ej. Transporte Gómez SRL" /></div>
+                <div class="field"><label>Teléfono / contacto</label><input id="clientPhone" placeholder="Teléfono o contacto" /></div>
+                <div class="field"><label>Dirección / zona</label><input id="clientAddress" placeholder="Dirección o zona de trabajo" /></div>
                 <div class="field"><label>Email</label><input id="clientEmail" type="email" placeholder="Email" /></div>
-                <button class="btn green" type="submit">Guardar cliente</button>
+                <button class="btn green" type="submit">Guardar empresa</button>
               </div>
             </form>
           </div>
@@ -474,7 +474,7 @@
       <section class="tab" id="calendario">
         <div class="card">
           <div class="section-title">
-            <h3>Calendario de fletes</h3>
+            <h3>Calendario de viajes</h3>
             <div class="actions"><input type="month" id="calendarMonth" onchange="renderCalendar()" /></div>
           </div>
           <div class="calendar" id="calendarGrid"></div>
@@ -483,8 +483,8 @@
 
       <section class="tab" id="pagos">
         <div class="card">
-          <div class="section-title"><h3>Control de pagos</h3><span>Marcá como pagado o pendiente</span></div>
-          <div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Cliente</th><th>Ruta</th><th>Monto</th><th>Estado pago</th><th>Acciones</th></tr></thead><tbody id="paymentsTable"></tbody></table></div>
+          <div class="section-title"><h3>Control de pagos a transportes</h3><span>Marcá los viajes pagados o pendientes</span></div>
+          <div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Empresa</th><th>Ruta</th><th>Monto</th><th>Estado pago</th><th>Acciones</th></tr></thead><tbody id="paymentsTable"></tbody></table></div>
         </div>
       </section>
 
@@ -520,13 +520,13 @@
   <div class="modal-backdrop" id="freightModal">
     <div class="modal">
       <div class="modal-head">
-        <h3 id="freightModalTitle">Nuevo flete</h3>
+        <h3 id="freightModalTitle">Nuevo viaje</h3>
         <button class="btn secondary small" onclick="closeFreightModal()">Cerrar</button>
       </div>
       <form id="freightForm" onsubmit="saveFreight(event)">
         <input type="hidden" id="freightId" />
         <div class="form-grid">
-          <div class="field"><label>Cliente</label><select id="freightClient" required></select></div>
+          <div class="field"><label>Empresa</label><select id="freightClient" required></select></div>
           <div class="field"><label>Transporte</label><select id="freightTransport" required></select></div>
           <div class="field"><label>Fecha programada</label><input id="freightDate" type="date" required /></div>
           <div class="field"><label>Frecuencia</label><select id="freightFrequency" onchange="toggleCustomDays()"><option value="unico">Único</option><option value="diario">Diario</option><option value="semanal">Semanal</option><option value="cada_x">Cada X días</option></select></div>
@@ -541,14 +541,14 @@
         <div class="card" style="box-shadow:none; padding:14px;">
           <div class="section-title"><h3>Multidestinos</h3><button type="button" class="btn secondary small" onclick="addDestination()">+ Agregar destino</button></div>
           <div class="destination-list" id="destinationsList"></div>
-          <p style="color: var(--muted); font-size: 13px; margin-bottom: 0;">El flete seguirá los destinos en el orden indicado.</p>
+          <p style="color: var(--muted); font-size: 13px; margin-bottom: 0;">El viaje seguirá los destinos en el orden indicado.</p>
         </div>
         <br>
-        <div class="field"><label>Descripción / observaciones</label><textarea id="freightNotes" placeholder="Detalle del flete, horarios, contacto, mercadería, etc."></textarea></div>
+        <div class="field"><label>Descripción / observaciones</label><textarea id="freightNotes" placeholder="Detalle del viaje, horarios, contacto, mercadería, etc."></textarea></div>
         <br>
         <div class="actions" style="justify-content:flex-end">
           <button class="btn secondary" type="button" onclick="closeFreightModal()">Cancelar</button>
-          <button class="btn green" type="submit">Guardar flete</button>
+          <button class="btn green" type="submit">Guardar viaje</button>
         </div>
       </form>
     </div>
@@ -557,13 +557,13 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    const STORAGE_KEY = 'sistema_fletes_v1';
+    const STORAGE_KEY = 'sistema_viajes_v1';
 
     const sampleData = {
       clients: [
-        { id: uid(), name: 'Juan Pérez', phone: '2324-000000', address: 'Junín, Bs. As.', email: '' },
-        { id: uid(), name: 'María García', phone: '236-000000', address: 'Chacabuco, Bs. As.', email: '' },
-        { id: uid(), name: 'Construcciones SA', phone: '11-0000-0000', address: 'Pergamino, Bs. As.', email: '' }
+        { id: uid(), name: 'Transporte El Rápido', phone: '2324-000000', address: 'Junín, Bs. As.', email: '' },
+        { id: uid(), name: 'Logística Junín', phone: '236-000000', address: 'Chacabuco, Bs. As.', email: '' },
+        { id: uid(), name: 'Transporte Norte SRL', phone: '11-0000-0000', address: 'Pergamino, Bs. As.', email: '' }
       ],
       transports: [
         { id: uid(), plate: 'AB 123 CD', driver: 'Juan López', type: 'Camión furgón', capacity: '10.000 kg', status: 'activo' },
@@ -583,7 +583,7 @@
       if (saved) return JSON.parse(saved);
       const data = structuredClone(sampleData);
       data.freights = [
-        { id: uid(), clientId: data.clients[0].id, transportId: data.transports[0].id, date: todayISO(), frequency: 'diario', everyDays: 1, amount: 45000, status: 'programado', payment: 'pendiente', origin: 'Junín', destinations: ['Chacabuco', 'Pergamino'], notes: 'Retiro por la mañana.' },
+        { id: uid(), clientId: data.clients[0].id, transportId: data.transports[0].id, date: todayISO(), frequency: 'diario', everyDays: 1, amount: 45000, status: 'programado', payment: 'pendiente', origin: 'Junín', destinations: ['Chacabuco', 'Pergamino'], notes: 'Servicio contratado para retiro por la mañana.' },
         { id: uid(), clientId: data.clients[1].id, transportId: data.transports[1].id, date: addDaysISO(1), frequency: 'semanal', everyDays: 7, amount: 62000, status: 'programado', payment: 'pendiente', origin: 'Junín', destinations: ['Laredo'], notes: '' },
         { id: uid(), clientId: data.clients[2].id, transportId: data.transports[0].id, date: addDaysISO(-2), frequency: 'unico', everyDays: 0, amount: 58000, status: 'completado', payment: 'pagado', origin: 'Junín', destinations: ['San Luis', 'Mendoza'], notes: '' }
       ];
@@ -596,7 +596,7 @@
     function addDaysISO(days) { const d = new Date(); d.setDate(d.getDate() + days); return d.toISOString().slice(0,10); }
     function money(n) { return '$' + Number(n || 0).toLocaleString('es-AR', { maximumFractionDigits: 0 }); }
     function fmtDate(iso) { if (!iso) return '-'; const [y,m,d] = iso.split('-'); return `${d}/${m}/${y.slice(2)}`; }
-    function getClient(id) { return db.clients.find(c => c.id === id) || { name: 'Sin cliente' }; }
+    function getClient(id) { return db.clients.find(c => c.id === id) || { name: 'Sin empresa' }; }
     function getTransport(id) { return db.transports.find(t => t.id === id) || { plate: 'Sin transporte', driver: '' }; }
     function routeOf(f) { return `${f.origin || '-'} → ${(f.destinations || []).join(' → ') || '-'}`; }
     function frequencyLabel(f) { return f.frequency === 'cada_x' ? `Cada ${f.everyDays || 1} días` : ({ unico: 'Único', diario: 'Diario', semanal: 'Semanal' }[f.frequency] || f.frequency); }
@@ -633,12 +633,12 @@
     function renderUpcoming() {
       const tbody = document.getElementById('upcomingTable');
       const rows = db.freights.filter(f => f.status === 'programado').sort((a,b) => a.date.localeCompare(b.date)).slice(0, 8);
-      tbody.innerHTML = rows.length ? rows.map(f => `<tr><td>${fmtDate(f.date)}</td><td>${getClient(f.clientId).name}</td><td class="route">${routeOf(f)}</td><td>${frequencyLabel(f)}</td><td>${getTransport(f.transportId).plate}</td><td>${badge(f.status)}</td></tr>`).join('') : `<tr><td colspan="6"><div class="empty">No hay fletes programados.</div></td></tr>`;
+      tbody.innerHTML = rows.length ? rows.map(f => `<tr><td>${fmtDate(f.date)}</td><td>${getClient(f.clientId).name}</td><td class="route">${routeOf(f)}</td><td>${frequencyLabel(f)}</td><td>${getTransport(f.transportId).plate}</td><td>${badge(f.status)}</td></tr>`).join('') : `<tr><td colspan="6"><div class="empty">No hay viajes programados.</div></td></tr>`;
       document.getElementById('summaryBox').innerHTML = `
-        <p><b>${db.freights.length}</b> fletes cargados en total.</p>
-        <p><b>${db.clients.length}</b> clientes en agenda.</p>
+        <p><b>${db.freights.length}</b> viajes cargados en total.</p>
+        <p><b>${db.clients.length}</b> empresas en agenda.</p>
         <p><b>${db.transports.length}</b> transportes cargados, de los cuales <b>${db.transports.filter(t => t.status === 'activo').length}</b> están activos.</p>
-        <p><b>${db.freights.filter(f => (f.destinations || []).length > 1).length}</b> fletes tienen multidestino.</p>
+        <p><b>${db.freights.filter(f => (f.destinations || []).length > 1).length}</b> viajes tienen multidestino.</p>
       `;
     }
 
@@ -652,7 +652,7 @@
       tbody.innerHTML = rows.length ? rows.map(f => `<tr>
         <td>${fmtDate(f.date)}</td><td>${getClient(f.clientId).name}</td><td class="route">${routeOf(f)}</td><td>${frequencyLabel(f)}</td><td class="money">${money(f.amount)}</td><td>${getTransport(f.transportId).plate}<br><small>${getTransport(f.transportId).driver || ''}</small></td><td>${badge(f.status)}</td>
         <td><button class="btn secondary small" onclick="openFreightModal('${f.id}')">Editar</button> <button class="btn danger small" onclick="deleteFreight('${f.id}')">Borrar</button></td>
-      </tr>`).join('') : `<tr><td colspan="8"><div class="empty">No hay fletes cargados.</div></td></tr>`;
+      </tr>`).join('') : `<tr><td colspan="8"><div class="empty">No hay viajes cargados.</div></td></tr>`;
     }
 
     function renderTransports() {
@@ -662,7 +662,7 @@
 
     function renderClients() {
       const tbody = document.getElementById('clientsTable');
-      tbody.innerHTML = db.clients.length ? db.clients.map(c => `<tr><td>${c.name}</td><td>${c.phone || '-'}</td><td>${c.address || '-'}</td><td><button class="btn secondary small" onclick="editClient('${c.id}')">Editar</button> <button class="btn danger small" onclick="deleteClient('${c.id}')">Borrar</button></td></tr>`).join('') : `<tr><td colspan="4"><div class="empty">No hay clientes cargados.</div></td></tr>`;
+      tbody.innerHTML = db.clients.length ? db.clients.map(c => `<tr><td>${c.name}</td><td>${c.phone || '-'}</td><td>${c.address || '-'}</td><td><button class="btn secondary small" onclick="editClient('${c.id}')">Editar</button> <button class="btn danger small" onclick="deleteClient('${c.id}')">Borrar</button></td></tr>`).join('') : `<tr><td colspan="4"><div class="empty">No hay empresas cargados.</div></td></tr>`;
     }
 
     function renderPayments() {
@@ -693,7 +693,7 @@
     function openFreightModal(id = null) {
       editingFreightId = id;
       renderFreightSelects();
-      document.getElementById('freightModalTitle').textContent = id ? 'Editar flete' : 'Nuevo flete';
+      document.getElementById('freightModalTitle').textContent = id ? 'Editar viaje' : 'Nuevo viaje';
       document.getElementById('freightForm').reset();
       document.getElementById('freightId').value = id || '';
       if (id) {
@@ -767,10 +767,10 @@
       };
       const ix = db.freights.findIndex(f => f.id === item.id);
       if (ix >= 0) db.freights[ix] = item; else db.freights.push(item);
-      saveDB(); closeFreightModal(); toast('Flete guardado correctamente.');
+      saveDB(); closeFreightModal(); toast('Viaje guardado correctamente.');
     }
 
-    function deleteFreight(id) { if (!confirm('¿Borrar este flete?')) return; db.freights = db.freights.filter(f => f.id !== id); saveDB(); }
+    function deleteFreight(id) { if (!confirm('¿Borrar este viaje?')) return; db.freights = db.freights.filter(f => f.id !== id); saveDB(); }
 
     function saveTransport(e) {
       e.preventDefault();
@@ -793,7 +793,7 @@
     }
 
     function deleteTransport(id) {
-      if (db.freights.some(f => f.transportId === id)) return toast('No se puede borrar: hay fletes usando este transporte. Podés ponerlo inactivo.');
+      if (db.freights.some(f => f.transportId === id)) return toast('No se puede borrar: hay viajes usando este transporte. Podés ponerlo inactivo.');
       if (!confirm('¿Borrar este transporte?')) return;
       db.transports = db.transports.filter(t => t.id !== id); saveDB();
     }
@@ -803,13 +803,13 @@
       const item = { id: document.getElementById('clientId').value || uid(), name: document.getElementById('clientName').value.trim(), phone: document.getElementById('clientPhone').value.trim(), address: document.getElementById('clientAddress').value.trim(), email: document.getElementById('clientEmail').value.trim() };
       const ix = db.clients.findIndex(c => c.id === item.id);
       if (ix >= 0) db.clients[ix] = item; else db.clients.push(item);
-      document.getElementById('clientForm').reset(); document.getElementById('clientId').value = ''; document.getElementById('clientFormTitle').textContent = 'Agregar cliente';
-      saveDB(); toast('Cliente guardado.');
+      document.getElementById('clientForm').reset(); document.getElementById('clientId').value = ''; document.getElementById('clientFormTitle').textContent = 'Agregar empresa';
+      saveDB(); toast('Empresa guardado.');
     }
 
     function editClient(id) {
       const c = db.clients.find(x => x.id === id);
-      document.getElementById('clientFormTitle').textContent = 'Editar cliente';
+      document.getElementById('clientFormTitle').textContent = 'Editar empresa';
       document.getElementById('clientId').value = c.id;
       document.getElementById('clientName').value = c.name;
       document.getElementById('clientPhone').value = c.phone;
@@ -818,8 +818,8 @@
     }
 
     function deleteClient(id) {
-      if (db.freights.some(f => f.clientId === id)) return toast('No se puede borrar: hay fletes cargados para este cliente.');
-      if (!confirm('¿Borrar este cliente?')) return;
+      if (db.freights.some(f => f.clientId === id)) return toast('No se puede borrar: hay viajes cargados para esta empresa.');
+      if (!confirm('¿Borrar este empresa?')) return;
       db.clients = db.clients.filter(c => c.id !== id); saveDB();
     }
 
@@ -872,7 +872,7 @@
       const app = document.getElementById('app');
       const dark = app.getAttribute('data-theme') === 'dark';
       app.setAttribute('data-theme', dark ? 'light' : 'dark');
-      localStorage.setItem('sistema_fletes_theme', dark ? 'light' : 'dark');
+      localStorage.setItem('sistema_viajes_theme', dark ? 'light' : 'dark');
     }
 
     function toast(msg) {
@@ -881,7 +881,7 @@
       setTimeout(() => el.classList.remove('show'), 2600);
     }
 
-    const savedTheme = localStorage.getItem('sistema_fletes_theme');
+    const savedTheme = localStorage.getItem('sistema_viajes_theme');
     if (savedTheme) document.getElementById('app').setAttribute('data-theme', savedTheme);
     renderAll();
   </script>
