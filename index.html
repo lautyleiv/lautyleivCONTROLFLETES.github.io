@@ -115,7 +115,6 @@
     .btn.small { padding: 7px 10px; border-radius: 10px; font-size: 13px; }
 
     .grid { display: grid; gap: 18px; }
-    .grid.kpis { grid-template-columns: repeat(5, minmax(0, 1fr)); margin-bottom: 18px; }
     .grid.kpis { grid-template-columns: repeat(6, minmax(0, 1fr)); margin-bottom: 18px; }
     .grid.two { grid-template-columns: 1.2fr .8fr; }
     .grid.three { grid-template-columns: repeat(3, 1fr); }
@@ -309,7 +308,6 @@
             <input class="search" id="tripSearch" placeholder="Buscar por empresa, origen, destino o transporte..." oninput="renderTrips()" />
             <button class="btn" onclick="openTripModal()">+ Agregar viaje</button>
           </div>
-          <div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Empresa</th><th>Ruta</th><th>Grupo</th><th>Frecuencia</th><th>Monto</th><th>Transporte</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="tripsTable"></tbody></table></div>
           <div id="weeklyTripsContainer"></div>
         </div>
       </section>
@@ -582,9 +580,6 @@
 
     function renderTrips() {
       const q = (document.getElementById('tripSearch')?.value || '').toLowerCase();
-      const tbody = document.getElementById('tripsTable');
-      const rows = db.trips.filter(t => `${getCompany(t.companyId).name} ${routeOf(t)} ${getTransport(t.transportId).plate} ${getTransport(t.transportId).driver} ${t.group || ''}`.toLowerCase().includes(q)).sort((a,b) => b.date.localeCompare(a.date));
-      tbody.innerHTML = rows.length ? rows.map(t => `<tr><td>${fmtDate(t.date)}</td><td>${getCompany(t.companyId).name}</td><td class="route">${routeOf(t)}</td><td>${t.group || routeOf(t)}</td><td>${frequencyLabel(t)}</td><td class="money">${money(t.amount)}</td><td>${getTransport(t.transportId).plate}<br><small>${getTransport(t.transportId).driver || ''}</small></td><td>${badge(t.status)}</td><td><button class="btn secondary small" onclick="openTripModal('${t.id}')">Editar</button> <button class="btn danger small" onclick="deleteTrip('${t.id}')">Borrar</button></td></tr>`).join('') : `<tr><td colspan="9"><div class="empty">No hay viajes cargados.</div></td></tr>`;
       const container = document.getElementById('weeklyTripsContainer');
       if (!container) return;
 
