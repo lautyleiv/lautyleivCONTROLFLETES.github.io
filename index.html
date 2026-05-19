@@ -3,11 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sistema de Gestión de Fletes</title>
+  <title>Control de Viajes y Transportes</title>
   <style>
     :root {
       --bg: #f3f6fb;
+      --bg-soft: #eaf0f8;
       --card: #ffffff;
+      --card-2: #f8fafc;
       --text: #14213d;
       --muted: #64748b;
       --line: #e2e8f0;
@@ -17,28 +19,39 @@
       --yellow: #f59e0b;
       --red: #dc2626;
       --purple: #7c3aed;
+      --cyan: #0891b2;
       --shadow: 0 14px 40px rgba(15, 23, 42, .08);
       --radius: 18px;
     }
 
-    [data-theme="dark"] {
-      --bg: #0f172a;
+    html[data-theme="dark"] {
+      --bg: #07111f;
+      --bg-soft: #0f172a;
       --card: #111827;
+      --card-2: #0f172a;
       --text: #f8fafc;
       --muted: #94a3b8;
-      --line: #253044;
+      --line: #263244;
       --primary: #60a5fa;
-      --primary-dark: #3b82f6;
+      --primary-dark: #93c5fd;
+      --green: #4ade80;
+      --yellow: #fbbf24;
+      --red: #f87171;
+      --purple: #c084fc;
+      --cyan: #22d3ee;
       --shadow: 0 18px 45px rgba(0, 0, 0, .35);
     }
 
     * { box-sizing: border-box; }
 
+    html, body { min-height: 100%; background: var(--bg); }
+
     body {
       margin: 0;
       font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: var(--bg);
+      background: radial-gradient(circle at top left, rgba(37,99,235,.12), transparent 32%), var(--bg);
       color: var(--text);
+      transition: background .2s, color .2s;
     }
 
     button, input, select, textarea { font: inherit; }
@@ -47,6 +60,7 @@
       min-height: 100vh;
       display: grid;
       grid-template-columns: 280px 1fr;
+      background: transparent;
     }
 
     .sidebar {
@@ -59,161 +73,85 @@
       overflow-y: auto;
     }
 
-    .brand {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      margin-bottom: 28px;
+    html[data-theme="dark"] .sidebar {
+      background: linear-gradient(180deg, #020617, #0f172a);
+      border-right: 1px solid var(--line);
     }
+
+    .brand { display: flex; gap: 12px; align-items: center; margin-bottom: 28px; }
 
     .brand-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 16px;
-      display: grid;
-      place-items: center;
-      background: rgba(96, 165, 250, .18);
-      font-size: 26px;
+      width: 48px; height: 48px; border-radius: 16px; display: grid; place-items: center;
+      background: rgba(96, 165, 250, .18); font-size: 26px;
     }
 
-    .brand h1 {
-      font-size: 18px;
-      line-height: 1.1;
-      margin: 0;
-      letter-spacing: .3px;
-    }
-
+    .brand h1 { font-size: 18px; line-height: 1.1; margin: 0; letter-spacing: .3px; }
     .brand span { font-size: 12px; opacity: .7; }
 
     .nav { display: grid; gap: 8px; }
 
     .nav button {
-      border: 0;
-      border-radius: 14px;
-      background: transparent;
-      color: rgba(255,255,255,.82);
-      padding: 13px 14px;
-      text-align: left;
-      cursor: pointer;
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      transition: .2s;
+      border: 0; border-radius: 14px; background: transparent; color: rgba(255,255,255,.82);
+      padding: 13px 14px; text-align: left; cursor: pointer; display: flex; gap: 10px; align-items: center; transition: .2s;
     }
 
-    .nav button:hover, .nav button.active {
-      background: rgba(37, 99, 235, .95);
-      color: white;
-      transform: translateX(2px);
-    }
+    .nav button:hover, .nav button.active { background: rgba(37, 99, 235, .95); color: white; transform: translateX(2px); }
 
     .main { padding: 24px; overflow: hidden; }
 
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 18px;
-      margin-bottom: 22px;
-    }
-
+    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 18px; margin-bottom: 22px; }
     .topbar h2 { margin: 0; font-size: 26px; }
     .topbar p { margin: 4px 0 0; color: var(--muted); }
-
     .actions { display: flex; gap: 10px; flex-wrap: wrap; }
 
     .btn {
-      border: 0;
-      border-radius: 13px;
-      padding: 11px 14px;
-      cursor: pointer;
-      background: var(--primary);
-      color: white;
-      font-weight: 700;
-      box-shadow: 0 8px 18px rgba(37, 99, 235, .22);
-      transition: .2s;
+      border: 0; border-radius: 13px; padding: 11px 14px; cursor: pointer; background: var(--primary);
+      color: white; font-weight: 700; box-shadow: 0 8px 18px rgba(37, 99, 235, .22); transition: .2s;
     }
-
-    .btn:hover { transform: translateY(-1px); background: var(--primary-dark); }
+    .btn:hover { transform: translateY(-1px); filter: brightness(.98); }
     .btn.secondary { background: var(--card); color: var(--text); border: 1px solid var(--line); box-shadow: none; }
     .btn.danger { background: var(--red); }
-    .btn.green { background: var(--green); }
+    .btn.green { background: var(--green); color: #052e16; }
     .btn.small { padding: 7px 10px; border-radius: 10px; font-size: 13px; }
 
     .grid { display: grid; gap: 18px; }
     .grid.kpis { grid-template-columns: repeat(5, minmax(0, 1fr)); margin-bottom: 18px; }
+    .grid.kpis { grid-template-columns: repeat(6, minmax(0, 1fr)); margin-bottom: 18px; }
     .grid.two { grid-template-columns: 1.2fr .8fr; }
     .grid.three { grid-template-columns: repeat(3, 1fr); }
 
     .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 18px;
+      background: linear-gradient(180deg, var(--card), var(--card-2));
+      border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px;
     }
 
-    .kpi {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      min-height: 96px;
-    }
-
+    .kpi { display: flex; justify-content: space-between; align-items: center; min-height: 96px; }
     .kpi .label { color: var(--muted); font-size: 13px; font-weight: 700; }
     .kpi .value { font-size: 28px; font-weight: 900; margin-top: 5px; }
-    .kpi .icon {
-      width: 46px;
-      height: 46px;
-      border-radius: 15px;
-      display: grid;
-      place-items: center;
-      background: rgba(37, 99, 235, .1);
-      font-size: 24px;
-    }
+    .kpi .icon { width: 46px; height: 46px; border-radius: 15px; display: grid; place-items: center; background: rgba(37,99,235,.12); font-size: 24px; }
 
-    .section-title {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 14px;
-    }
-
+    .section-title { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; }
     .section-title h3 { margin: 0; font-size: 17px; }
     .section-title span { color: var(--muted); font-size: 13px; }
 
     table { width: 100%; border-collapse: collapse; }
     th, td { padding: 12px 10px; border-bottom: 1px solid var(--line); text-align: left; font-size: 14px; vertical-align: top; }
     th { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .05em; }
-    tr:hover td { background: rgba(37, 99, 235, .035); }
+    tr:hover td { background: rgba(37, 99, 235, .05); }
 
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 5px 9px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 800;
-    }
-    .badge.active, .badge.pagado, .badge.completado { background: rgba(22, 163, 74, .12); color: var(--green); }
-    .badge.pending, .badge.pendiente { background: rgba(245, 158, 11, .15); color: #b45309; }
-    .badge.inactive, .badge.cancelado, .badge.vencido { background: rgba(220, 38, 38, .12); color: var(--red); }
-    .badge.programado { background: rgba(37, 99, 235, .12); color: var(--primary-dark); }
+    .badge { display: inline-flex; align-items: center; gap: 5px; padding: 5px 9px; border-radius: 999px; font-size: 12px; font-weight: 800; }
+    .badge.activo, .badge.pagado, .badge.completado { background: rgba(22, 163, 74, .14); color: var(--green); }
+    .badge.pendiente { background: rgba(245, 158, 11, .16); color: var(--yellow); }
+    .badge.inactivo, .badge.cancelado, .badge.vencido { background: rgba(220, 38, 38, .14); color: var(--red); }
+    .badge.programado { background: rgba(37, 99, 235, .14); color: var(--primary-dark); }
 
     .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
     .form-grid.one { grid-template-columns: 1fr; }
     .field { display: grid; gap: 6px; }
     label { font-size: 13px; color: var(--muted); font-weight: 800; }
     input, select, textarea {
-      width: 100%;
-      padding: 12px 12px;
-      border-radius: 12px;
-      border: 1px solid var(--line);
-      background: var(--card);
-      color: var(--text);
-      outline: none;
+      width: 100%; padding: 12px 12px; border-radius: 12px; border: 1px solid var(--line);
+      background: var(--card); color: var(--text); outline: none;
     }
     input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, .12); }
     textarea { min-height: 90px; resize: vertical; }
@@ -222,120 +160,54 @@
     .tab.active { display: block; }
     @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-    .toolbar {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 14px;
-    }
-
-    .search { max-width: 340px; }
+    .toolbar { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+    .search { max-width: 360px; }
 
     .destination-list { display: grid; gap: 10px; }
-    .destination-row {
-      display: grid;
-      grid-template-columns: 44px 1fr 42px;
-      gap: 8px;
-      align-items: center;
-    }
-    .destination-row .num {
-      width: 36px;
-      height: 36px;
-      border-radius: 12px;
-      display: grid;
-      place-items: center;
-      background: rgba(37, 99, 235, .1);
-      color: var(--primary-dark);
-      font-weight: 900;
-    }
+    .destination-row { display: grid; grid-template-columns: 44px 1fr 42px; gap: 8px; align-items: center; }
+    .destination-row .num { width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center; background: rgba(37,99,235,.12); color: var(--primary-dark); font-weight: 900; }
 
-    .calendar {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      overflow: hidden;
-    }
-
-    .day-name, .day {
-      min-height: 86px;
-      padding: 9px;
-      border-right: 1px solid var(--line);
-      border-bottom: 1px solid var(--line);
-      background: var(--card);
-    }
+    .calendar { display: grid; grid-template-columns: repeat(7, 1fr); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+    .day-name, .day { min-height: 86px; padding: 9px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--card); }
     .day-name { min-height: auto; font-weight: 900; color: var(--muted); font-size: 12px; text-align: center; }
     .day:nth-child(7n), .day-name:nth-child(7n) { border-right: 0; }
     .day-number { font-weight: 900; font-size: 13px; margin-bottom: 6px; }
-    .event-pill {
-      display: block;
-      margin-top: 4px;
-      padding: 4px 6px;
-      border-radius: 8px;
-      background: rgba(37, 99, 235, .12);
-      color: var(--primary-dark);
-      font-size: 11px;
-      font-weight: 800;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+    .event-pill { display: block; margin-top: 4px; padding: 4px 6px; border-radius: 8px; background: rgba(37,99,235,.14); color: var(--primary-dark); font-size: 11px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(15, 23, 42, .62);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 18px;
-      z-index: 50;
-    }
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(15,23,42,.72); display: none; align-items: center; justify-content: center; padding: 18px; z-index: 50; }
     .modal-backdrop.show { display: flex; }
-    .modal {
-      width: min(920px, 100%);
-      max-height: 92vh;
-      overflow-y: auto;
-      background: var(--card);
-      border-radius: 24px;
-      border: 1px solid var(--line);
-      box-shadow: 0 25px 80px rgba(0,0,0,.35);
-      padding: 20px;
-    }
-    .modal-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 16px;
-    }
+    .modal { width: min(960px, 100%); max-height: 92vh; overflow-y: auto; background: var(--card); border-radius: 24px; border: 1px solid var(--line); box-shadow: 0 25px 80px rgba(0,0,0,.35); padding: 20px; }
+    .modal-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 16px; }
     .modal-head h3 { margin: 0; font-size: 20px; }
 
-    .empty {
-      padding: 24px;
-      text-align: center;
-      color: var(--muted);
-      border: 1px dashed var(--line);
-      border-radius: 16px;
-    }
-
+    .empty { padding: 24px; text-align: center; color: var(--muted); border: 1px dashed var(--line); border-radius: 16px; }
     .route { font-weight: 800; color: var(--primary-dark); }
     .money { font-weight: 900; }
 
-    .toast {
-      position: fixed;
-      right: 22px;
-      bottom: 22px;
-      background: #0f172a;
-      color: white;
-      padding: 13px 16px;
-      border-radius: 14px;
-      box-shadow: 0 15px 45px rgba(0,0,0,.25);
-      display: none;
-      z-index: 100;
-      font-weight: 800;
-    }
+    .chart-list { display: grid; gap: 12px; }
+    .chart-row { display: grid; gap: 6px; }
+    .chart-head { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; font-weight: 800; }
+    .bar-track { height: 13px; background: rgba(100,116,139,.16); border-radius: 999px; overflow: hidden; border: 1px solid var(--line); }
+    .bar { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--primary), var(--cyan)); min-width: 4px; }
+    .chart-total { color: var(--muted); font-size: 12px; margin-top: 8px; }
+
+    .route-card { border: 1px solid var(--line); border-radius: 16px; padding: 14px; background: var(--card); display: grid; gap: 8px; }
+    .route-card strong { font-size: 15px; }
+    .route-meta { display: flex; flex-wrap: wrap; gap: 8px; color: var(--muted); font-size: 13px; }
+
+    .week-block { margin-bottom: 18px; border: 1px solid var(--line); border-radius: 18px; overflow: hidden; background: var(--card); }
+    .week-head { display: flex; justify-content: space-between; gap: 14px; align-items: center; padding: 14px 16px; background: rgba(37,99,235,.08); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+    .week-title { display: grid; gap: 3px; }
+    .week-title strong { font-size: 16px; }
+    .week-title span { color: var(--muted); font-size: 13px; }
+    .week-totals { display: flex; flex-wrap: wrap; gap: 8px; }
+    .total-pill { display: inline-flex; gap: 6px; align-items: center; padding: 7px 10px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); font-size: 13px; font-weight: 900; }
+    .total-pill.pending { color: var(--yellow); }
+    .total-pill.paid { color: var(--green); }
+    .total-pill.total { color: var(--primary-dark); }
+
+
+    .toast { position: fixed; right: 22px; bottom: 22px; background: #0f172a; color: white; padding: 13px 16px; border-radius: 14px; box-shadow: 0 15px 45px rgba(0,0,0,.25); display: none; z-index: 100; font-weight: 800; }
     .toast.show { display: block; }
 
     @media (max-width: 1100px) {
@@ -366,16 +238,18 @@
       <div class="brand">
         <div class="brand-icon">🚚</div>
         <div>
-          <h1>Fletes<br>Mi Negocio</h1>
-          <span>Sistema de gestión</span>
+          <h1>Viajes<br>Contratados</h1>
+          <span>Control de transportes</span>
         </div>
       </div>
 
       <nav class="nav">
         <button class="active" data-tab="dashboard">📊 Dashboard</button>
-        <button data-tab="fletes">🚛 Fletes</button>
+        <button data-tab="viajes">🚛 Viajes</button>
+        <button data-tab="empresas">🏢 Empresas</button>
         <button data-tab="transportes">🚚 Transportes</button>
-        <button data-tab="clientes">👥 Clientes</button>
+        <button data-tab="destinos">📍 Destinos</button>
+        <button data-tab="agrupados">🧩 Agrupados</button>
         <button data-tab="calendario">📅 Calendario</button>
         <button data-tab="pagos">💵 Pagos</button>
         <button data-tab="reportes">📈 Reportes</button>
@@ -387,42 +261,78 @@
       <header class="topbar">
         <div>
           <h2 id="pageTitle">Dashboard</h2>
-          <p>Controlá fletes diarios, semanales o cada X cantidad de días, con multidestinos y transportes editables.</p>
+          <p>Controlá los viajes que hacen las empresas de transporte para vos: diarios, semanales o cada X días, con multidestinos, pagos y seguimiento por proveedor.</p>
         </div>
         <div class="actions">
           <button class="btn secondary" onclick="toggleTheme()">🌗 Modo claro/oscuro</button>
-          <button class="btn" onclick="openFreightModal()">+ Nuevo flete</button>
+          <button class="btn" onclick="openTripModal()">+ Nuevo viaje</button>
         </div>
       </header>
 
       <section class="tab active" id="dashboard">
         <div class="grid kpis">
-          <div class="card kpi"><div><div class="label">Fletes activos</div><div class="value" id="kpiActive">0</div></div><div class="icon">🚛</div></div>
-          <div class="card kpi"><div><div class="label">Transportes activos</div><div class="value" id="kpiTransport">0</div></div><div class="icon">🚚</div></div>
+          <div class="card kpi"><div><div class="label">Viajes activos</div><div class="value" id="kpiActive">0</div></div><div class="icon">🚛</div></div>
+          <div class="card kpi"><div><div class="label">Empresas</div><div class="value" id="kpiCompanies">0</div></div><div class="icon">🏢</div></div>
           <div class="card kpi"><div><div class="label">Programados</div><div class="value" id="kpiScheduled">0</div></div><div class="icon">📅</div></div>
-          <div class="card kpi"><div><div class="label">Ingresos del mes</div><div class="value" id="kpiIncome">$0</div></div><div class="icon">💵</div></div>
-          <div class="card kpi"><div><div class="label">Completados</div><div class="value" id="kpiDone">0</div></div><div class="icon">✅</div></div>
+          <div class="card kpi"><div><div class="label">Pagado del mes</div><div class="value" id="kpiIncome">$0</div></div><div class="icon">💵</div></div>
+          <div class="card kpi"><div><div class="label">Destinos guardados</div><div class="value" id="kpiPlaces">0</div></div><div class="icon">📍</div></div>
+          <div class="card kpi"><div><div class="label">Adeudado total</div><div class="value" id="kpiDebt">$0</div></div><div class="icon">⚠️</div></div>
         </div>
 
         <div class="grid two">
           <div class="card">
-            <div class="section-title"><h3>Próximos fletes programados</h3><span>Ordenados por fecha</span></div>
-            <div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Cliente</th><th>Ruta</th><th>Frecuencia</th><th>Transporte</th><th>Estado</th></tr></thead><tbody id="upcomingTable"></tbody></table></div>
+            <div class="section-title"><h3>Próximos viajes programados</h3><span>Ordenados por fecha</span></div>
+            <div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Empresa</th><th>Ruta</th><th>Frecuencia</th><th>Transporte</th><th>Estado</th></tr></thead><tbody id="upcomingTable"></tbody></table></div>
           </div>
           <div class="card">
-            <div class="section-title"><h3>Resumen rápido</h3><span>Estado general</span></div>
-            <div id="summaryBox"></div>
+            <div class="section-title"><h3>Viajes por estado</h3><span>Gráfico</span></div>
+            <div id="statusChart"></div>
+          </div>
+        </div>
+
+        <br>
+        <div class="grid two">
+          <div class="card">
+            <div class="section-title"><h3>Empresas con más viajes</h3><span>Ranking</span></div>
+            <div id="companyChart"></div>
+          </div>
+          <div class="card">
+            <div class="section-title"><h3>Rutas más repetidas</h3><span>Agrupación automática</span></div>
+            <div id="routeChart"></div>
           </div>
         </div>
       </section>
 
-      <section class="tab" id="fletes">
+      <section class="tab" id="viajes">
         <div class="card">
           <div class="toolbar">
-            <input class="search" id="freightSearch" placeholder="Buscar por cliente, origen, destino o transporte..." oninput="renderFreights()" />
-            <button class="btn" onclick="openFreightModal()">+ Agregar flete</button>
+            <input class="search" id="tripSearch" placeholder="Buscar por empresa, origen, destino o transporte..." oninput="renderTrips()" />
+            <button class="btn" onclick="openTripModal()">+ Agregar viaje</button>
           </div>
-          <div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Cliente</th><th>Ruta</th><th>Frecuencia</th><th>Monto</th><th>Transporte</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="freightsTable"></tbody></table></div>
+          <div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Empresa</th><th>Ruta</th><th>Grupo</th><th>Frecuencia</th><th>Monto</th><th>Transporte</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="tripsTable"></tbody></table></div>
+          <div id="weeklyTripsContainer"></div>
+        </div>
+      </section>
+
+      <section class="tab" id="empresas">
+        <div class="grid two">
+          <div class="card">
+            <div class="section-title"><h3>Empresas de transporte</h3><span>Proveedores que realizan tus viajes</span></div>
+            <div class="table-wrap"><table><thead><tr><th>Empresa</th><th>Contacto</th><th>Zona</th><th>Acciones</th></tr></thead><tbody id="companiesTable"></tbody></table></div>
+          </div>
+          <div class="card">
+            <div class="section-title"><h3 id="companyFormTitle">Agregar empresa</h3></div>
+            <form id="companyForm" onsubmit="saveCompany(event)">
+              <input type="hidden" id="companyId" />
+              <div class="form-grid one">
+                <div class="field"><label>Nombre de la empresa</label><input id="companyName" required placeholder="Ej. Transporte Gómez SRL" /></div>
+                <div class="field"><label>Teléfono / contacto</label><input id="companyPhone" placeholder="Teléfono o contacto" /></div>
+                <div class="field"><label>Dirección / zona</label><input id="companyAddress" placeholder="Dirección o zona de trabajo" /></div>
+                <div class="field"><label>Email</label><input id="companyEmail" type="email" placeholder="Email" /></div>
+                <button class="btn green" type="submit">Guardar empresa</button>
+              </div>
+            </form>
+          </div>
         </div>
       </section>
 
@@ -430,13 +340,14 @@
         <div class="grid two">
           <div class="card">
             <div class="section-title"><h3>Transportes / vehículos</h3><span>Alta, baja y edición</span></div>
-            <div class="table-wrap"><table><thead><tr><th>Patente</th><th>Chofer</th><th>Tipo</th><th>Capacidad</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="transportTable"></tbody></table></div>
+            <div class="table-wrap"><table><thead><tr><th>Patente</th><th>Empresa</th><th>Chofer</th><th>Tipo</th><th>Capacidad</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="transportTable"></tbody></table></div>
           </div>
           <div class="card">
             <div class="section-title"><h3 id="transportFormTitle">Agregar transporte</h3></div>
             <form id="transportForm" onsubmit="saveTransport(event)">
               <input type="hidden" id="transportId" />
               <div class="form-grid one">
+                <div class="field"><label>Empresa dueña del transporte</label><select id="transportCompany"></select></div>
                 <div class="field"><label>Patente</label><input id="transportPlate" required placeholder="Ej. AB 123 CD" /></div>
                 <div class="field"><label>Chofer</label><input id="transportDriver" required placeholder="Nombre del chofer" /></div>
                 <div class="field"><label>Tipo</label><select id="transportType"><option>Camión furgón</option><option>Camión semi</option><option>Camión chasis</option><option>Camioneta</option><option>Utilitario</option></select></div>
@@ -449,42 +360,50 @@
         </div>
       </section>
 
-      <section class="tab" id="clientes">
+      <section class="tab" id="destinos">
         <div class="grid two">
           <div class="card">
-            <div class="section-title"><h3>Clientes</h3><span>Agenda básica</span></div>
-            <div class="table-wrap"><table><thead><tr><th>Nombre</th><th>Teléfono</th><th>Dirección</th><th>Acciones</th></tr></thead><tbody id="clientsTable"></tbody></table></div>
+            <div class="section-title"><h3>Destinos guardados</h3><span>Para seleccionar rápido al cargar viajes</span></div>
+            <div class="table-wrap"><table><thead><tr><th>Lugar</th><th>Zona / Provincia</th><th>Acciones</th></tr></thead><tbody id="placesTable"></tbody></table></div>
           </div>
           <div class="card">
-            <div class="section-title"><h3 id="clientFormTitle">Agregar cliente</h3></div>
-            <form id="clientForm" onsubmit="saveClient(event)">
-              <input type="hidden" id="clientId" />
+            <div class="section-title"><h3 id="placeFormTitle">Agregar destino</h3></div>
+            <form id="placeForm" onsubmit="savePlace(event)">
+              <input type="hidden" id="placeId" />
               <div class="form-grid one">
-                <div class="field"><label>Nombre</label><input id="clientName" required placeholder="Nombre o razón social" /></div>
-                <div class="field"><label>Teléfono</label><input id="clientPhone" placeholder="Teléfono" /></div>
-                <div class="field"><label>Dirección</label><input id="clientAddress" placeholder="Dirección" /></div>
-                <div class="field"><label>Email</label><input id="clientEmail" type="email" placeholder="Email" /></div>
-                <button class="btn green" type="submit">Guardar cliente</button>
+                <div class="field"><label>Nombre del destino</label><input id="placeName" required placeholder="Ej. Chacabuco" /></div>
+                <div class="field"><label>Zona / provincia</label><input id="placeZone" placeholder="Ej. Buenos Aires" /></div>
+                <button class="btn green" type="submit">Guardar destino</button>
               </div>
             </form>
           </div>
         </div>
       </section>
 
+      <section class="tab" id="agrupados">
+        <div class="grid two">
+          <div class="card">
+            <div class="section-title"><h3>Viajes agrupados por trayecto</h3><span>Mismo origen y mismos destinos</span></div>
+            <div id="groupByRoute"></div>
+          </div>
+          <div class="card">
+            <div class="section-title"><h3>Viajes agrupados por destino</h3><span>Cada destino final o intermedio</span></div>
+            <div id="groupByDestination"></div>
+          </div>
+        </div>
+      </section>
+
       <section class="tab" id="calendario">
         <div class="card">
-          <div class="section-title">
-            <h3>Calendario de fletes</h3>
-            <div class="actions"><input type="month" id="calendarMonth" onchange="renderCalendar()" /></div>
-          </div>
+          <div class="section-title"><h3>Calendario de viajes</h3><div class="actions"><input type="month" id="calendarMonth" onchange="renderCalendar()" /></div></div>
           <div class="calendar" id="calendarGrid"></div>
         </div>
       </section>
 
       <section class="tab" id="pagos">
         <div class="card">
-          <div class="section-title"><h3>Control de pagos</h3><span>Marcá como pagado o pendiente</span></div>
-          <div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Cliente</th><th>Ruta</th><th>Monto</th><th>Estado pago</th><th>Acciones</th></tr></thead><tbody id="paymentsTable"></tbody></table></div>
+          <div class="section-title"><h3>Control de pagos a transportes</h3><span>Marcá los viajes pagados o pendientes</span></div>
+          <div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Empresa</th><th>Ruta</th><th>Monto</th><th>Estado pago</th><th>Acciones</th></tr></thead><tbody id="paymentsTable"></tbody></table></div>
         </div>
       </section>
 
@@ -500,16 +419,12 @@
         <div class="grid two">
           <div class="card">
             <div class="section-title"><h3>Base de datos local</h3><span>Se guarda en este navegador</span></div>
-            <p style="color: var(--muted); line-height: 1.6;">Esta primera versión funciona sin servidor. Guarda la información en <b>LocalStorage</b>. Después se puede conectar a MySQL, Firebase, Supabase o Excel/Google Sheets.</p>
-            <div class="actions">
-              <button class="btn secondary" onclick="exportData()">Exportar backup JSON</button>
-              <button class="btn danger" onclick="resetData()">Borrar toda la base</button>
-            </div>
+            <p style="color: var(--muted); line-height: 1.6;">Esta versión guarda la información en <b>LocalStorage</b>. Después se puede conectar a MySQL, Firebase, Supabase o Google Sheets.</p>
+            <div class="actions"><button class="btn secondary" onclick="exportData()">Exportar backup JSON</button><button class="btn danger" onclick="resetData()">Borrar toda la base</button></div>
           </div>
           <div class="card">
             <div class="section-title"><h3>Importar backup</h3></div>
-            <textarea id="importBox" placeholder="Pegá acá el JSON exportado"></textarea>
-            <br><br>
+            <textarea id="importBox" placeholder="Pegá acá el JSON exportado"></textarea><br><br>
             <button class="btn" onclick="importData()">Importar datos</button>
           </div>
         </div>
@@ -517,39 +432,35 @@
     </main>
   </div>
 
-  <div class="modal-backdrop" id="freightModal">
+  <div class="modal-backdrop" id="tripModal">
     <div class="modal">
-      <div class="modal-head">
-        <h3 id="freightModalTitle">Nuevo flete</h3>
-        <button class="btn secondary small" onclick="closeFreightModal()">Cerrar</button>
-      </div>
-      <form id="freightForm" onsubmit="saveFreight(event)">
-        <input type="hidden" id="freightId" />
+      <div class="modal-head"><h3 id="tripModalTitle">Nuevo viaje</h3><button class="btn secondary small" onclick="closeTripModal()">Cerrar</button></div>
+      <form id="tripForm" onsubmit="saveTrip(event)">
+        <input type="hidden" id="tripId" />
         <div class="form-grid">
-          <div class="field"><label>Cliente</label><select id="freightClient" required></select></div>
-          <div class="field"><label>Transporte</label><select id="freightTransport" required></select></div>
-          <div class="field"><label>Fecha programada</label><input id="freightDate" type="date" required /></div>
-          <div class="field"><label>Frecuencia</label><select id="freightFrequency" onchange="toggleCustomDays()"><option value="unico">Único</option><option value="diario">Diario</option><option value="semanal">Semanal</option><option value="cada_x">Cada X días</option></select></div>
-          <div class="field" id="customDaysField" style="display:none"><label>Cada cuántos días</label><input id="freightEveryDays" type="number" min="1" value="3" /></div>
-          <div class="field"><label>Monto</label><input id="freightAmount" type="number" min="0" step="0.01" placeholder="0" /></div>
-          <div class="field"><label>Estado</label><select id="freightStatus"><option value="programado">Programado</option><option value="completado">Completado</option><option value="cancelado">Cancelado</option></select></div>
-          <div class="field"><label>Estado de pago</label><select id="freightPayment"><option value="pendiente">Pendiente</option><option value="pagado">Pagado</option></select></div>
+          <div class="field"><label>Empresa de transporte</label><select id="tripCompany" required onchange="renderTripTransportSelect()"></select></div>
+          <div class="field"><label>Transporte</label><select id="tripTransport" required></select></div>
+          <div class="field"><label>Fecha programada</label><input id="tripDate" type="date" required /></div>
+          <div class="field"><label>Frecuencia</label><select id="tripFrequency" onchange="toggleCustomDays()"><option value="unico">Único</option><option value="diario">Diario</option><option value="semanal">Semanal</option><option value="cada_x">Cada X días</option></select></div>
+          <div class="field" id="customDaysField" style="display:none"><label>Cada cuántos días</label><input id="tripEveryDays" type="number" min="1" value="3" /></div>
+          <div class="field"><label>Monto</label><input id="tripAmount" type="number" min="0" step="0.01" placeholder="0" /></div>
+          <div class="field"><label>Estado</label><select id="tripStatus"><option value="programado">Programado</option><option value="completado">Completado</option><option value="cancelado">Cancelado</option></select></div>
+          <div class="field"><label>Estado de pago</label><select id="tripPayment"><option value="pendiente">Pendiente</option><option value="pagado">Pagado</option></select></div>
         </div>
         <br>
-        <div class="field"><label>Origen</label><input id="freightOrigin" required placeholder="Ej. Junín" /></div>
+        <div class="field"><label>Origen guardado</label><select id="tripOrigin"></select></div>
         <br>
         <div class="card" style="box-shadow:none; padding:14px;">
-          <div class="section-title"><h3>Multidestinos</h3><button type="button" class="btn secondary small" onclick="addDestination()">+ Agregar destino</button></div>
+          <div class="section-title"><h3>Multidestinos</h3><button type="button" class="btn secondary small" onclick="addDestinationSelect()">+ Agregar destino</button></div>
           <div class="destination-list" id="destinationsList"></div>
-          <p style="color: var(--muted); font-size: 13px; margin-bottom: 0;">El flete seguirá los destinos en el orden indicado.</p>
+          <p style="color: var(--muted); font-size: 13px; margin-bottom: 0;">Ahora los destinos se seleccionan desde lugares guardados. También podés cargarlos en la pestaña Destinos.</p>
         </div>
         <br>
-        <div class="field"><label>Descripción / observaciones</label><textarea id="freightNotes" placeholder="Detalle del flete, horarios, contacto, mercadería, etc."></textarea></div>
+        <div class="field"><label>Grupo / nombre del trayecto</label><input id="tripGroup" placeholder="Ej. Junín → Chacabuco → Pergamino" /></div>
         <br>
-        <div class="actions" style="justify-content:flex-end">
-          <button class="btn secondary" type="button" onclick="closeFreightModal()">Cancelar</button>
-          <button class="btn green" type="submit">Guardar flete</button>
-        </div>
+        <div class="field"><label>Descripción / observaciones</label><textarea id="tripNotes" placeholder="Detalle del viaje, horario, contacto, mercadería, etc."></textarea></div>
+        <br>
+        <div class="actions" style="justify-content:flex-end"><button class="btn secondary" type="button" onclick="closeTripModal()">Cancelar</button><button class="btn green" type="submit">Guardar viaje</button></div>
       </form>
     </div>
   </div>
@@ -557,49 +468,58 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    const STORAGE_KEY = 'sistema_fletes_v1';
+    const STORAGE_KEY = 'control_viajes_transportes_v2';
 
     const sampleData = {
-      clients: [
-        { id: uid(), name: 'Juan Pérez', phone: '2324-000000', address: 'Junín, Bs. As.', email: '' },
-        { id: uid(), name: 'María García', phone: '236-000000', address: 'Chacabuco, Bs. As.', email: '' },
-        { id: uid(), name: 'Construcciones SA', phone: '11-0000-0000', address: 'Pergamino, Bs. As.', email: '' }
+      companies: [
+        { id: uid(), name: 'Transporte El Rápido', phone: '2324-000000', address: 'Junín / zona norte', email: '' },
+        { id: uid(), name: 'Logística Junín', phone: '236-000000', address: 'Chacabuco / Pergamino', email: '' },
+        { id: uid(), name: 'Transporte Norte SRL', phone: '11-0000-0000', address: 'Buenos Aires', email: '' }
       ],
-      transports: [
-        { id: uid(), plate: 'AB 123 CD', driver: 'Juan López', type: 'Camión furgón', capacity: '10.000 kg', status: 'activo' },
-        { id: uid(), plate: 'AC 456 EF', driver: 'Pedro Gómez', type: 'Camión semi', capacity: '20.000 kg', status: 'activo' },
-        { id: uid(), plate: 'AD 789 GH', driver: 'Luis Martínez', type: 'Camión chasis', capacity: '15.000 kg', status: 'inactivo' }
+      transports: [],
+      places: [
+        { id: uid(), name: 'Junín', zone: 'Buenos Aires' },
+        { id: uid(), name: 'Chacabuco', zone: 'Buenos Aires' },
+        { id: uid(), name: 'Pergamino', zone: 'Buenos Aires' },
+        { id: uid(), name: 'San Luis', zone: 'San Luis' },
+        { id: uid(), name: 'Mendoza', zone: 'Mendoza' },
+        { id: uid(), name: 'Laredo', zone: 'Destino frecuente' }
       ],
-      freights: []
+      trips: []
     };
 
     let db = loadData();
-    let editingFreightId = null;
 
     function uid() { return 'id_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36); }
+    function todayISO() { return new Date().toISOString().slice(0,10); }
+    function addDaysISO(days) { const d = new Date(); d.setDate(d.getDate() + days); return d.toISOString().slice(0,10); }
+    function money(n) { return '$' + Number(n || 0).toLocaleString('es-AR', { maximumFractionDigits: 0 }); }
+    function fmtDate(iso) { if (!iso) return '-'; const [y,m,d] = iso.split('-'); return `${d}/${m}/${y.slice(2)}`; }
 
     function loadData() {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) return JSON.parse(saved);
       const data = structuredClone(sampleData);
-      data.freights = [
-        { id: uid(), clientId: data.clients[0].id, transportId: data.transports[0].id, date: todayISO(), frequency: 'diario', everyDays: 1, amount: 45000, status: 'programado', payment: 'pendiente', origin: 'Junín', destinations: ['Chacabuco', 'Pergamino'], notes: 'Retiro por la mañana.' },
-        { id: uid(), clientId: data.clients[1].id, transportId: data.transports[1].id, date: addDaysISO(1), frequency: 'semanal', everyDays: 7, amount: 62000, status: 'programado', payment: 'pendiente', origin: 'Junín', destinations: ['Laredo'], notes: '' },
-        { id: uid(), clientId: data.clients[2].id, transportId: data.transports[0].id, date: addDaysISO(-2), frequency: 'unico', everyDays: 0, amount: 58000, status: 'completado', payment: 'pagado', origin: 'Junín', destinations: ['San Luis', 'Mendoza'], notes: '' }
+      data.transports = [
+        { id: uid(), companyId: data.companies[0].id, plate: 'AB 123 CD', driver: 'Juan López', type: 'Camión furgón', capacity: '10.000 kg', status: 'activo' },
+        { id: uid(), companyId: data.companies[1].id, plate: 'AC 456 EF', driver: 'Pedro Gómez', type: 'Camión semi', capacity: '20.000 kg', status: 'activo' },
+        { id: uid(), companyId: data.companies[2].id, plate: 'AD 789 GH', driver: 'Luis Martínez', type: 'Camión chasis', capacity: '15.000 kg', status: 'inactivo' }
+      ];
+      data.trips = [
+        { id: uid(), companyId: data.companies[0].id, transportId: data.transports[0].id, date: todayISO(), frequency: 'diario', everyDays: 1, amount: 45000, status: 'programado', payment: 'pendiente', origin: 'Junín', destinations: ['Chacabuco', 'Pergamino'], group: 'Junín → Chacabuco → Pergamino', notes: 'Servicio contratado para retiro por la mañana.' },
+        { id: uid(), companyId: data.companies[1].id, transportId: data.transports[1].id, date: addDaysISO(1), frequency: 'semanal', everyDays: 7, amount: 62000, status: 'programado', payment: 'pendiente', origin: 'Junín', destinations: ['Laredo'], group: 'Junín → Laredo', notes: '' },
+        { id: uid(), companyId: data.companies[2].id, transportId: data.transports[0].id, date: addDaysISO(-2), frequency: 'unico', everyDays: 0, amount: 58000, status: 'completado', payment: 'pagado', origin: 'Junín', destinations: ['San Luis', 'Mendoza'], group: 'Junín → San Luis → Mendoza', notes: '' }
       ];
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       return data;
     }
 
     function saveDB() { localStorage.setItem(STORAGE_KEY, JSON.stringify(db)); renderAll(); }
-    function todayISO() { return new Date().toISOString().slice(0,10); }
-    function addDaysISO(days) { const d = new Date(); d.setDate(d.getDate() + days); return d.toISOString().slice(0,10); }
-    function money(n) { return '$' + Number(n || 0).toLocaleString('es-AR', { maximumFractionDigits: 0 }); }
-    function fmtDate(iso) { if (!iso) return '-'; const [y,m,d] = iso.split('-'); return `${d}/${m}/${y.slice(2)}`; }
-    function getClient(id) { return db.clients.find(c => c.id === id) || { name: 'Sin cliente' }; }
+    function getCompany(id) { return db.companies.find(c => c.id === id) || { name: 'Sin empresa' }; }
     function getTransport(id) { return db.transports.find(t => t.id === id) || { plate: 'Sin transporte', driver: '' }; }
-    function routeOf(f) { return `${f.origin || '-'} → ${(f.destinations || []).join(' → ') || '-'}`; }
-    function frequencyLabel(f) { return f.frequency === 'cada_x' ? `Cada ${f.everyDays || 1} días` : ({ unico: 'Único', diario: 'Diario', semanal: 'Semanal' }[f.frequency] || f.frequency); }
+    function routeOf(t) { return `${t.origin || '-'} → ${(t.destinations || []).join(' → ') || '-'}`; }
+    function frequencyLabel(t) { return t.frequency === 'cada_x' ? `Cada ${t.everyDays || 1} días` : ({ unico: 'Único', diario: 'Diario', semanal: 'Semanal' }[t.frequency] || t.frequency); }
+    function badge(value) { return `<span class="badge ${String(value).toLowerCase()}">${value}</span>`; }
 
     document.querySelectorAll('.nav button').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -607,131 +527,245 @@
         btn.classList.add('active');
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.getElementById(btn.dataset.tab).classList.add('active');
-        document.getElementById('pageTitle').textContent = btn.textContent.replace(/[📊🚛🚚👥📅💵📈⚙️]/g, '').trim();
+        document.getElementById('pageTitle').textContent = btn.textContent.replace(/[📊🚛🚚🏢📍🧩📅💵📈⚙️]/g, '').trim();
         if (btn.dataset.tab === 'calendario') renderCalendar();
       });
     });
 
-    function badge(value) { return `<span class="badge ${String(value).toLowerCase()}">${value}</span>`; }
-
     function renderAll() {
-      renderKpis(); renderUpcoming(); renderFreights(); renderTransports(); renderClients(); renderPayments(); renderReports(); renderFreightSelects(); renderCalendar();
+      renderKpis(); renderUpcoming(); renderTrips(); renderCompanies(); renderTransports(); renderPlaces(); renderPayments(); renderReports(); renderCharts(); renderGroups(); renderTripSelects(); renderCalendar();
+    }
+
+
+    function getWeekInfo(isoDate) {
+      const date = new Date(isoDate + 'T00:00:00');
+      const day = date.getDay() || 7;
+      const monday = new Date(date);
+      monday.setDate(date.getDate() - day + 1);
+
+      const thursday = new Date(monday);
+      thursday.setDate(monday.getDate() + 3);
+
+      const firstThursday = new Date(thursday.getFullYear(), 0, 4);
+      const firstDay = firstThursday.getDay() || 7;
+      const firstMonday = new Date(firstThursday);
+      firstMonday.setDate(firstThursday.getDate() - firstDay + 1);
+
+      const week = Math.floor((monday - firstMonday) / 604800000) + 1;
+      const sunday = new Date(monday);
+      sunday.setDate(monday.getDate() + 6);
+
+      return {
+        week,
+        year: thursday.getFullYear(),
+        start: monday.toISOString().slice(0, 10),
+        end: sunday.toISOString().slice(0, 10)
+      };
     }
 
     function renderKpis() {
-      const now = new Date();
-      const month = now.getMonth();
-      const year = now.getFullYear();
-      const monthFreights = db.freights.filter(f => { const d = new Date(f.date + 'T00:00:00'); return d.getMonth() === month && d.getFullYear() === year; });
-      document.getElementById('kpiActive').textContent = db.freights.filter(f => f.status !== 'cancelado').length;
-      document.getElementById('kpiTransport').textContent = db.transports.filter(t => t.status === 'activo').length;
-      document.getElementById('kpiScheduled').textContent = db.freights.filter(f => f.status === 'programado').length;
-      document.getElementById('kpiIncome').textContent = money(monthFreights.filter(f => f.payment === 'pagado').reduce((a,b) => a + Number(b.amount || 0), 0));
-      document.getElementById('kpiDone').textContent = db.freights.filter(f => f.status === 'completado').length;
+      const now = new Date(); const month = now.getMonth(); const year = now.getFullYear();
+      const monthTrips = db.trips.filter(t => { const d = new Date(t.date + 'T00:00:00'); return d.getMonth() === month && d.getFullYear() === year; });
+      document.getElementById('kpiActive').textContent = db.trips.filter(t => t.status !== 'cancelado').length;
+      document.getElementById('kpiCompanies').textContent = db.companies.length;
+      document.getElementById('kpiScheduled').textContent = db.trips.filter(t => t.status === 'programado').length;
+      document.getElementById('kpiIncome').textContent = money(monthTrips.filter(t => t.payment === 'pagado').reduce((a,b) => a + Number(b.amount || 0), 0));
+      document.getElementById('kpiPlaces').textContent = db.places.length;
+      document.getElementById('kpiDebt').textContent = money(db.trips.filter(t => t.payment === 'pendiente').reduce((a,b) => a + Number(b.amount || 0), 0));
     }
 
     function renderUpcoming() {
       const tbody = document.getElementById('upcomingTable');
-      const rows = db.freights.filter(f => f.status === 'programado').sort((a,b) => a.date.localeCompare(b.date)).slice(0, 8);
-      tbody.innerHTML = rows.length ? rows.map(f => `<tr><td>${fmtDate(f.date)}</td><td>${getClient(f.clientId).name}</td><td class="route">${routeOf(f)}</td><td>${frequencyLabel(f)}</td><td>${getTransport(f.transportId).plate}</td><td>${badge(f.status)}</td></tr>`).join('') : `<tr><td colspan="6"><div class="empty">No hay fletes programados.</div></td></tr>`;
-      document.getElementById('summaryBox').innerHTML = `
-        <p><b>${db.freights.length}</b> fletes cargados en total.</p>
-        <p><b>${db.clients.length}</b> clientes en agenda.</p>
-        <p><b>${db.transports.length}</b> transportes cargados, de los cuales <b>${db.transports.filter(t => t.status === 'activo').length}</b> están activos.</p>
-        <p><b>${db.freights.filter(f => (f.destinations || []).length > 1).length}</b> fletes tienen multidestino.</p>
-      `;
+      const rows = db.trips.filter(t => t.status === 'programado').sort((a,b) => a.date.localeCompare(b.date)).slice(0, 8);
+      tbody.innerHTML = rows.length ? rows.map(t => `<tr><td>${fmtDate(t.date)}</td><td>${getCompany(t.companyId).name}</td><td class="route">${routeOf(t)}</td><td>${frequencyLabel(t)}</td><td>${getTransport(t.transportId).plate}</td><td>${badge(t.status)}</td></tr>`).join('') : `<tr><td colspan="6"><div class="empty">No hay viajes programados.</div></td></tr>`;
     }
 
-    function renderFreights() {
-      const q = (document.getElementById('freightSearch')?.value || '').toLowerCase();
-      const tbody = document.getElementById('freightsTable');
-      const rows = db.freights.filter(f => {
-        const text = `${getClient(f.clientId).name} ${routeOf(f)} ${getTransport(f.transportId).plate} ${getTransport(f.transportId).driver}`.toLowerCase();
-        return text.includes(q);
-      }).sort((a,b) => b.date.localeCompare(a.date));
-      tbody.innerHTML = rows.length ? rows.map(f => `<tr>
-        <td>${fmtDate(f.date)}</td><td>${getClient(f.clientId).name}</td><td class="route">${routeOf(f)}</td><td>${frequencyLabel(f)}</td><td class="money">${money(f.amount)}</td><td>${getTransport(f.transportId).plate}<br><small>${getTransport(f.transportId).driver || ''}</small></td><td>${badge(f.status)}</td>
-        <td><button class="btn secondary small" onclick="openFreightModal('${f.id}')">Editar</button> <button class="btn danger small" onclick="deleteFreight('${f.id}')">Borrar</button></td>
-      </tr>`).join('') : `<tr><td colspan="8"><div class="empty">No hay fletes cargados.</div></td></tr>`;
+    function renderTrips() {
+      const q = (document.getElementById('tripSearch')?.value || '').toLowerCase();
+      const tbody = document.getElementById('tripsTable');
+      const rows = db.trips.filter(t => `${getCompany(t.companyId).name} ${routeOf(t)} ${getTransport(t.transportId).plate} ${getTransport(t.transportId).driver} ${t.group || ''}`.toLowerCase().includes(q)).sort((a,b) => b.date.localeCompare(a.date));
+      tbody.innerHTML = rows.length ? rows.map(t => `<tr><td>${fmtDate(t.date)}</td><td>${getCompany(t.companyId).name}</td><td class="route">${routeOf(t)}</td><td>${t.group || routeOf(t)}</td><td>${frequencyLabel(t)}</td><td class="money">${money(t.amount)}</td><td>${getTransport(t.transportId).plate}<br><small>${getTransport(t.transportId).driver || ''}</small></td><td>${badge(t.status)}</td><td><button class="btn secondary small" onclick="openTripModal('${t.id}')">Editar</button> <button class="btn danger small" onclick="deleteTrip('${t.id}')">Borrar</button></td></tr>`).join('') : `<tr><td colspan="9"><div class="empty">No hay viajes cargados.</div></td></tr>`;
+      const container = document.getElementById('weeklyTripsContainer');
+      if (!container) return;
+
+      const rows = db.trips
+        .filter(t => `${getCompany(t.companyId).name} ${routeOf(t)} ${getTransport(t.transportId).plate} ${getTransport(t.transportId).driver} ${t.group || ''}`.toLowerCase().includes(q))
+        .sort((a,b) => b.date.localeCompare(a.date));
+
+      if (!rows.length) {
+        container.innerHTML = `<div class="empty">No hay viajes cargados.</div>`;
+        return;
+      }
+
+      const grouped = {};
+      rows.forEach(t => {
+        const info = getWeekInfo(t.date);
+        const key = `${info.year}-S${String(info.week).padStart(2, '0')}`;
+        if (!grouped[key]) grouped[key] = { info, trips: [] };
+        grouped[key].trips.push(t);
+      });
+
+      container.innerHTML = Object.values(grouped)
+        .sort((a,b) => b.info.year - a.info.year || b.info.week - a.info.week)
+        .map(group => {
+          const total = group.trips.reduce((acc, t) => acc + Number(t.amount || 0), 0);
+          const paid = group.trips.filter(t => t.payment === 'pagado').reduce((acc, t) => acc + Number(t.amount || 0), 0);
+          const pending = group.trips.filter(t => t.payment === 'pendiente').reduce((acc, t) => acc + Number(t.amount || 0), 0);
+
+          const rowsHtml = group.trips.map(t => `<tr>
+            <td>${fmtDate(t.date)}</td>
+            <td>${getCompany(t.companyId).name}</td>
+            <td class="route">${routeOf(t)}</td>
+            <td>${t.group || routeOf(t)}</td>
+            <td>${frequencyLabel(t)}</td>
+            <td class="money">${money(t.amount)}</td>
+            <td>${getTransport(t.transportId).plate}<br><small>${getTransport(t.transportId).driver || ''}</small></td>
+            <td>${badge(t.status)}<br>${badge(t.payment)}</td>
+            <td><button class="btn secondary small" onclick="openTripModal('${t.id}')">Editar</button> <button class="btn danger small" onclick="deleteTrip('${t.id}')">Borrar</button></td>
+          </tr>`).join('');
+
+          return `<div class="week-block">
+            <div class="week-head">
+              <div class="week-title">
+                <strong>Semana ${group.info.week} / ${group.info.year}</strong>
+                <span>${fmtDate(group.info.start)} al ${fmtDate(group.info.end)} · ${group.trips.length} viajes</span>
+              </div>
+              <div class="week-totals">
+                <span class="total-pill total">Total: ${money(total)}</span>
+                <span class="total-pill paid">Pagado: ${money(paid)}</span>
+                <span class="total-pill pending">Adeudado: ${money(pending)}</span>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Fecha</th><th>Empresa</th><th>Ruta</th><th>Grupo</th><th>Frecuencia</th><th>Monto</th><th>Transporte</th><th>Estado / Pago</th><th>Acciones</th></tr></thead>
+                <tbody>${rowsHtml}</tbody>
+              </table>
+            </div>
+          </div>`;
+        }).join('');
+    }
+
+    function renderCompanies() {
+      const tbody = document.getElementById('companiesTable');
+      tbody.innerHTML = db.companies.length ? db.companies.map(c => `<tr><td>${c.name}</td><td>${c.phone || '-'}</td><td>${c.address || '-'}</td><td><button class="btn secondary small" onclick="editCompany('${c.id}')">Editar</button> <button class="btn danger small" onclick="deleteCompany('${c.id}')">Borrar</button></td></tr>`).join('') : `<tr><td colspan="4"><div class="empty">No hay empresas cargadas.</div></td></tr>`;
     }
 
     function renderTransports() {
       const tbody = document.getElementById('transportTable');
-      tbody.innerHTML = db.transports.length ? db.transports.map(t => `<tr><td>${t.plate}</td><td>${t.driver}</td><td>${t.type}</td><td>${t.capacity || '-'}</td><td>${badge(t.status)}</td><td><button class="btn secondary small" onclick="editTransport('${t.id}')">Editar</button> <button class="btn danger small" onclick="deleteTransport('${t.id}')">Borrar</button></td></tr>`).join('') : `<tr><td colspan="6"><div class="empty">No hay transportes cargados.</div></td></tr>`;
+      tbody.innerHTML = db.transports.length ? db.transports.map(t => `<tr><td>${t.plate}</td><td>${getCompany(t.companyId).name}</td><td>${t.driver}</td><td>${t.type}</td><td>${t.capacity || '-'}</td><td>${badge(t.status)}</td><td><button class="btn secondary small" onclick="editTransport('${t.id}')">Editar</button> <button class="btn danger small" onclick="deleteTransport('${t.id}')">Borrar</button></td></tr>`).join('') : `<tr><td colspan="7"><div class="empty">No hay transportes cargados.</div></td></tr>`;
     }
 
-    function renderClients() {
-      const tbody = document.getElementById('clientsTable');
-      tbody.innerHTML = db.clients.length ? db.clients.map(c => `<tr><td>${c.name}</td><td>${c.phone || '-'}</td><td>${c.address || '-'}</td><td><button class="btn secondary small" onclick="editClient('${c.id}')">Editar</button> <button class="btn danger small" onclick="deleteClient('${c.id}')">Borrar</button></td></tr>`).join('') : `<tr><td colspan="4"><div class="empty">No hay clientes cargados.</div></td></tr>`;
+    function renderPlaces() {
+      const tbody = document.getElementById('placesTable');
+      tbody.innerHTML = db.places.length ? db.places.map(p => `<tr><td>${p.name}</td><td>${p.zone || '-'}</td><td><button class="btn secondary small" onclick="editPlace('${p.id}')">Editar</button> <button class="btn danger small" onclick="deletePlace('${p.id}')">Borrar</button></td></tr>`).join('') : `<tr><td colspan="3"><div class="empty">No hay destinos guardados.</div></td></tr>`;
     }
 
     function renderPayments() {
       const tbody = document.getElementById('paymentsTable');
-      tbody.innerHTML = db.freights.length ? db.freights.map(f => `<tr><td>${fmtDate(f.date)}</td><td>${getClient(f.clientId).name}</td><td class="route">${routeOf(f)}</td><td class="money">${money(f.amount)}</td><td>${badge(f.payment)}</td><td><button class="btn small ${f.payment === 'pagado' ? 'secondary' : 'green'}" onclick="togglePayment('${f.id}')">${f.payment === 'pagado' ? 'Marcar pendiente' : 'Marcar pagado'}</button></td></tr>`).join('') : `<tr><td colspan="6"><div class="empty">No hay pagos para mostrar.</div></td></tr>`;
+      tbody.innerHTML = db.trips.length ? db.trips.map(t => `<tr><td>${fmtDate(t.date)}</td><td>${getCompany(t.companyId).name}</td><td class="route">${routeOf(t)}</td><td class="money">${money(t.amount)}</td><td>${badge(t.payment)}</td><td><button class="btn small ${t.payment === 'pagado' ? 'secondary' : 'green'}" onclick="togglePayment('${t.id}')">${t.payment === 'pagado' ? 'Marcar pendiente' : 'Marcar pagado'}</button></td></tr>`).join('') : `<tr><td colspan="6"><div class="empty">No hay pagos para mostrar.</div></td></tr>`;
     }
 
     function renderReports() {
-      const frequencies = countBy(db.freights, f => frequencyLabel(f));
-      const statuses = countBy(db.freights, f => f.status);
-      const transports = countBy(db.freights, f => getTransport(f.transportId).plate);
-      document.getElementById('frequencyReport').innerHTML = reportList(frequencies);
-      document.getElementById('statusReport').innerHTML = reportList(statuses);
-      document.getElementById('transportReport').innerHTML = reportList(transports);
+      document.getElementById('frequencyReport').innerHTML = chartList(countBy(db.trips, t => frequencyLabel(t)));
+      document.getElementById('statusReport').innerHTML = chartList(countBy(db.trips, t => t.status));
+      document.getElementById('transportReport').innerHTML = chartList(countBy(db.trips, t => getTransport(t.transportId).plate));
     }
 
-    function countBy(arr, fn) { return arr.reduce((acc, item) => { const k = fn(item); acc[k] = (acc[k] || 0) + 1; return acc; }, {}); }
-    function reportList(obj) { const entries = Object.entries(obj); return entries.length ? entries.map(([k,v]) => `<p style="display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:8px;"><b>${k}</b><span>${v}</span></p>`).join('') : '<div class="empty">Sin datos.</div>'; }
-
-    function renderFreightSelects() {
-      const clientSelect = document.getElementById('freightClient');
-      const transportSelect = document.getElementById('freightTransport');
-      if (!clientSelect || !transportSelect) return;
-      clientSelect.innerHTML = db.clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-      transportSelect.innerHTML = db.transports.filter(t => t.status === 'activo').map(t => `<option value="${t.id}">${t.plate} - ${t.driver}</option>`).join('');
+    function renderCharts() {
+      document.getElementById('statusChart').innerHTML = chartList(countBy(db.trips, t => t.status));
+      document.getElementById('companyChart').innerHTML = chartList(countBy(db.trips, t => getCompany(t.companyId).name));
+      document.getElementById('routeChart').innerHTML = chartList(countBy(db.trips, t => t.group || routeOf(t)));
     }
 
-    function openFreightModal(id = null) {
-      editingFreightId = id;
-      renderFreightSelects();
-      document.getElementById('freightModalTitle').textContent = id ? 'Editar flete' : 'Nuevo flete';
-      document.getElementById('freightForm').reset();
-      document.getElementById('freightId').value = id || '';
+    function renderGroups() {
+      const byRoute = countGroup(db.trips, t => t.group || routeOf(t));
+      const byDestination = {};
+      db.trips.forEach(t => (t.destinations || []).forEach(d => { if (!byDestination[d]) byDestination[d] = []; byDestination[d].push(t); }));
+      document.getElementById('groupByRoute').innerHTML = groupCards(byRoute);
+      document.getElementById('groupByDestination').innerHTML = groupCards(byDestination);
+    }
+
+    function countBy(arr, fn) { return arr.reduce((acc, item) => { const k = fn(item) || 'Sin dato'; acc[k] = (acc[k] || 0) + 1; return acc; }, {}); }
+    function countGroup(arr, fn) { return arr.reduce((acc, item) => { const k = fn(item) || 'Sin dato'; if (!acc[k]) acc[k] = []; acc[k].push(item); return acc; }, {}); }
+
+    function chartList(obj) {
+      const entries = Object.entries(obj).sort((a,b) => b[1] - a[1]);
+      const total = entries.reduce((a,b) => a + b[1], 0);
+      if (!entries.length) return '<div class="empty">Sin datos.</div>';
+      return `<div class="chart-list">${entries.map(([k,v]) => { const pct = total ? Math.round((v / total) * 100) : 0; return `<div class="chart-row"><div class="chart-head"><span>${k}</span><span>${v} · ${pct}%</span></div><div class="bar-track"><div class="bar" style="width:${pct}%"></div></div></div>`; }).join('')}<div class="chart-total">Total: ${total}</div></div>`;
+    }
+
+    function groupCards(obj) {
+      const entries = Object.entries(obj).sort((a,b) => b[1].length - a[1].length);
+      if (!entries.length) return '<div class="empty">Sin viajes para agrupar.</div>';
+      return `<div class="grid">${entries.map(([name, trips]) => { const total = trips.reduce((a,t) => a + Number(t.amount || 0), 0); const pending = trips.filter(t => t.payment === 'pendiente').length; return `<div class="route-card"><strong>${name}</strong><div class="route-meta"><span>${trips.length} viajes</span><span>${money(total)}</span><span>${pending} pagos pendientes</span></div></div>`; }).join('')}</div>`;
+    }
+
+    function renderTripSelects() {
+      const companySelect = document.getElementById('tripCompany');
+      const transportCompany = document.getElementById('transportCompany');
+      const origin = document.getElementById('tripOrigin');
+      if (companySelect) companySelect.innerHTML = db.companies.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+      if (transportCompany) transportCompany.innerHTML = db.companies.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+      if (origin) origin.innerHTML = db.places.map(p => `<option value="${p.name}">${p.name}${p.zone ? ' · ' + p.zone : ''}</option>`).join('');
+      renderTripTransportSelect();
+    }
+
+    function renderTripTransportSelect() {
+      const select = document.getElementById('tripTransport');
+      const companyId = document.getElementById('tripCompany')?.value;
+      if (!select) return;
+      const active = db.transports.filter(t => t.status === 'activo' && (!companyId || t.companyId === companyId));
+      select.innerHTML = active.length ? active.map(t => `<option value="${t.id}">${t.plate} - ${t.driver}</option>`).join('') : '<option value="">Sin transportes activos</option>';
+    }
+
+    function destinationOptions(selected = '') {
+      return db.places.map(p => `<option value="${p.name}" ${p.name === selected ? 'selected' : ''}>${p.name}${p.zone ? ' · ' + p.zone : ''}</option>`).join('');
+    }
+
+    function openTripModal(id = null) {
+      renderTripSelects();
+      document.getElementById('tripForm').reset();
+      document.getElementById('tripId').value = id || '';
+      document.getElementById('tripModalTitle').textContent = id ? 'Editar viaje' : 'Nuevo viaje';
       if (id) {
-        const f = db.freights.find(x => x.id === id);
-        document.getElementById('freightClient').value = f.clientId;
-        document.getElementById('freightTransport').value = f.transportId;
-        document.getElementById('freightDate').value = f.date;
-        document.getElementById('freightFrequency').value = f.frequency;
-        document.getElementById('freightEveryDays').value = f.everyDays || 3;
-        document.getElementById('freightAmount').value = f.amount || 0;
-        document.getElementById('freightStatus').value = f.status;
-        document.getElementById('freightPayment').value = f.payment;
-        document.getElementById('freightOrigin').value = f.origin;
-        document.getElementById('freightNotes').value = f.notes || '';
-        setDestinations(f.destinations || ['']);
+        const t = db.trips.find(x => x.id === id);
+        document.getElementById('tripCompany').value = t.companyId;
+        renderTripTransportSelect();
+        document.getElementById('tripTransport').value = t.transportId;
+        document.getElementById('tripDate').value = t.date;
+        document.getElementById('tripFrequency').value = t.frequency;
+        document.getElementById('tripEveryDays').value = t.everyDays || 3;
+        document.getElementById('tripAmount').value = t.amount || 0;
+        document.getElementById('tripStatus').value = t.status;
+        document.getElementById('tripPayment').value = t.payment;
+        document.getElementById('tripOrigin').value = t.origin;
+        document.getElementById('tripGroup').value = t.group || '';
+        document.getElementById('tripNotes').value = t.notes || '';
+        setDestinationSelects(t.destinations || []);
       } else {
-        document.getElementById('freightDate').value = todayISO();
-        setDestinations(['']);
+        document.getElementById('tripDate').value = todayISO();
+        setDestinationSelects(['']);
       }
       toggleCustomDays();
-      document.getElementById('freightModal').classList.add('show');
+      document.getElementById('tripModal').classList.add('show');
     }
 
-    function closeFreightModal() { document.getElementById('freightModal').classList.remove('show'); }
-    function toggleCustomDays() { document.getElementById('customDaysField').style.display = document.getElementById('freightFrequency').value === 'cada_x' ? 'grid' : 'none'; }
+    function closeTripModal() { document.getElementById('tripModal').classList.remove('show'); }
+    function toggleCustomDays() { document.getElementById('customDaysField').style.display = document.getElementById('tripFrequency').value === 'cada_x' ? 'grid' : 'none'; }
 
-    function setDestinations(destinations) {
+    function setDestinationSelects(destinations) {
       const box = document.getElementById('destinationsList');
       box.innerHTML = '';
-      destinations.forEach(d => addDestination(d));
+      (destinations.length ? destinations : ['']).forEach(d => addDestinationSelect(d));
     }
 
-    function addDestination(value = '') {
+    function addDestinationSelect(value = '') {
       const box = document.getElementById('destinationsList');
-      const index = box.children.length + 1;
       const row = document.createElement('div');
       row.className = 'destination-row';
-      row.innerHTML = `<div class="num">${index}</div><input class="destinationInput" placeholder="Destino ${index}" value="${value}"><button type="button" class="btn danger small" onclick="removeDestination(this)">×</button>`;
+      row.innerHTML = `<div class="num"></div><select class="destinationInput">${destinationOptions(value)}</select><button type="button" class="btn danger small" onclick="removeDestination(this)">×</button>`;
       box.appendChild(row);
       refreshDestinationNumbers();
     }
@@ -744,47 +778,103 @@
     }
 
     function refreshDestinationNumbers() {
-      document.querySelectorAll('.destination-row').forEach((row, i) => { row.querySelector('.num').textContent = i + 1; row.querySelector('input').placeholder = `Destino ${i + 1}`; });
+      document.querySelectorAll('.destination-row').forEach((row, i) => row.querySelector('.num').textContent = i + 1);
     }
 
-    function saveFreight(e) {
+    function saveTrip(e) {
       e.preventDefault();
       const destinations = [...document.querySelectorAll('.destinationInput')].map(i => i.value.trim()).filter(Boolean);
       if (!destinations.length) return toast('Agregá al menos un destino.');
+      const origin = document.getElementById('tripOrigin').value;
+      const route = `${origin} → ${destinations.join(' → ')}`;
       const item = {
-        id: document.getElementById('freightId').value || uid(),
-        clientId: document.getElementById('freightClient').value,
-        transportId: document.getElementById('freightTransport').value,
-        date: document.getElementById('freightDate').value,
-        frequency: document.getElementById('freightFrequency').value,
-        everyDays: Number(document.getElementById('freightEveryDays').value || 0),
-        amount: Number(document.getElementById('freightAmount').value || 0),
-        status: document.getElementById('freightStatus').value,
-        payment: document.getElementById('freightPayment').value,
-        origin: document.getElementById('freightOrigin').value.trim(),
+        id: document.getElementById('tripId').value || uid(),
+        companyId: document.getElementById('tripCompany').value,
+        transportId: document.getElementById('tripTransport').value,
+        date: document.getElementById('tripDate').value,
+        frequency: document.getElementById('tripFrequency').value,
+        everyDays: Number(document.getElementById('tripEveryDays').value || 0),
+        amount: Number(document.getElementById('tripAmount').value || 0),
+        status: document.getElementById('tripStatus').value,
+        payment: document.getElementById('tripPayment').value,
+        origin,
         destinations,
-        notes: document.getElementById('freightNotes').value.trim()
+        group: document.getElementById('tripGroup').value.trim() || route,
+        notes: document.getElementById('tripNotes').value.trim()
       };
-      const ix = db.freights.findIndex(f => f.id === item.id);
-      if (ix >= 0) db.freights[ix] = item; else db.freights.push(item);
-      saveDB(); closeFreightModal(); toast('Flete guardado correctamente.');
+      const ix = db.trips.findIndex(t => t.id === item.id);
+      if (ix >= 0) db.trips[ix] = item; else db.trips.push(item);
+      saveDB();
+      closeTripModal();
+      toast('Viaje guardado correctamente.');
     }
 
-    function deleteFreight(id) { if (!confirm('¿Borrar este flete?')) return; db.freights = db.freights.filter(f => f.id !== id); saveDB(); }
+    function deleteTrip(id) {
+      if (!confirm('¿Borrar este viaje?')) return;
+      db.trips = db.trips.filter(t => t.id !== id);
+      saveDB();
+    }
+
+    function saveCompany(e) {
+      e.preventDefault();
+      const item = {
+        id: document.getElementById('companyId').value || uid(),
+        name: document.getElementById('companyName').value.trim(),
+        phone: document.getElementById('companyPhone').value.trim(),
+        address: document.getElementById('companyAddress').value.trim(),
+        email: document.getElementById('companyEmail').value.trim()
+      };
+      const ix = db.companies.findIndex(c => c.id === item.id);
+      if (ix >= 0) db.companies[ix] = item; else db.companies.push(item);
+      document.getElementById('companyForm').reset();
+      document.getElementById('companyId').value = '';
+      document.getElementById('companyFormTitle').textContent = 'Agregar empresa';
+      saveDB();
+      toast('Empresa guardada.');
+    }
+
+    function editCompany(id) {
+      const c = db.companies.find(x => x.id === id);
+      document.getElementById('companyFormTitle').textContent = 'Editar empresa';
+      document.getElementById('companyId').value = c.id;
+      document.getElementById('companyName').value = c.name;
+      document.getElementById('companyPhone').value = c.phone;
+      document.getElementById('companyAddress').value = c.address;
+      document.getElementById('companyEmail').value = c.email;
+    }
+
+    function deleteCompany(id) {
+      if (db.trips.some(t => t.companyId === id) || db.transports.some(t => t.companyId === id)) return toast('No se puede borrar: hay viajes o transportes asociados a esta empresa.');
+      if (!confirm('¿Borrar esta empresa?')) return;
+      db.companies = db.companies.filter(c => c.id !== id);
+      saveDB();
+    }
 
     function saveTransport(e) {
       e.preventDefault();
-      const item = { id: document.getElementById('transportId').value || uid(), plate: document.getElementById('transportPlate').value.trim(), driver: document.getElementById('transportDriver').value.trim(), type: document.getElementById('transportType').value, capacity: document.getElementById('transportCapacity').value.trim(), status: document.getElementById('transportStatus').value };
+      const item = {
+        id: document.getElementById('transportId').value || uid(),
+        companyId: document.getElementById('transportCompany').value,
+        plate: document.getElementById('transportPlate').value.trim(),
+        driver: document.getElementById('transportDriver').value.trim(),
+        type: document.getElementById('transportType').value,
+        capacity: document.getElementById('transportCapacity').value.trim(),
+        status: document.getElementById('transportStatus').value
+      };
       const ix = db.transports.findIndex(t => t.id === item.id);
       if (ix >= 0) db.transports[ix] = item; else db.transports.push(item);
-      document.getElementById('transportForm').reset(); document.getElementById('transportId').value = ''; document.getElementById('transportFormTitle').textContent = 'Agregar transporte';
-      saveDB(); toast('Transporte guardado.');
+      document.getElementById('transportForm').reset();
+      document.getElementById('transportId').value = '';
+      document.getElementById('transportFormTitle').textContent = 'Agregar transporte';
+      saveDB();
+      toast('Transporte guardado.');
     }
 
     function editTransport(id) {
       const t = db.transports.find(x => x.id === id);
       document.getElementById('transportFormTitle').textContent = 'Editar transporte';
       document.getElementById('transportId').value = t.id;
+      document.getElementById('transportCompany').value = t.companyId;
       document.getElementById('transportPlate').value = t.plate;
       document.getElementById('transportDriver').value = t.driver;
       document.getElementById('transportType').value = t.type;
@@ -793,39 +883,47 @@
     }
 
     function deleteTransport(id) {
-      if (db.freights.some(f => f.transportId === id)) return toast('No se puede borrar: hay fletes usando este transporte. Podés ponerlo inactivo.');
+      if (db.trips.some(t => t.transportId === id)) return toast('No se puede borrar: hay viajes usando este transporte. Podés ponerlo inactivo.');
       if (!confirm('¿Borrar este transporte?')) return;
-      db.transports = db.transports.filter(t => t.id !== id); saveDB();
+      db.transports = db.transports.filter(t => t.id !== id);
+      saveDB();
     }
 
-    function saveClient(e) {
+    function savePlace(e) {
       e.preventDefault();
-      const item = { id: document.getElementById('clientId').value || uid(), name: document.getElementById('clientName').value.trim(), phone: document.getElementById('clientPhone').value.trim(), address: document.getElementById('clientAddress').value.trim(), email: document.getElementById('clientEmail').value.trim() };
-      const ix = db.clients.findIndex(c => c.id === item.id);
-      if (ix >= 0) db.clients[ix] = item; else db.clients.push(item);
-      document.getElementById('clientForm').reset(); document.getElementById('clientId').value = ''; document.getElementById('clientFormTitle').textContent = 'Agregar cliente';
-      saveDB(); toast('Cliente guardado.');
+      const item = {
+        id: document.getElementById('placeId').value || uid(),
+        name: document.getElementById('placeName').value.trim(),
+        zone: document.getElementById('placeZone').value.trim()
+      };
+      const ix = db.places.findIndex(p => p.id === item.id);
+      if (ix >= 0) db.places[ix] = item; else db.places.push(item);
+      document.getElementById('placeForm').reset();
+      document.getElementById('placeId').value = '';
+      document.getElementById('placeFormTitle').textContent = 'Agregar destino';
+      saveDB();
+      toast('Destino guardado.');
     }
 
-    function editClient(id) {
-      const c = db.clients.find(x => x.id === id);
-      document.getElementById('clientFormTitle').textContent = 'Editar cliente';
-      document.getElementById('clientId').value = c.id;
-      document.getElementById('clientName').value = c.name;
-      document.getElementById('clientPhone').value = c.phone;
-      document.getElementById('clientAddress').value = c.address;
-      document.getElementById('clientEmail').value = c.email;
+    function editPlace(id) {
+      const p = db.places.find(x => x.id === id);
+      document.getElementById('placeFormTitle').textContent = 'Editar destino';
+      document.getElementById('placeId').value = p.id;
+      document.getElementById('placeName').value = p.name;
+      document.getElementById('placeZone').value = p.zone;
     }
 
-    function deleteClient(id) {
-      if (db.freights.some(f => f.clientId === id)) return toast('No se puede borrar: hay fletes cargados para este cliente.');
-      if (!confirm('¿Borrar este cliente?')) return;
-      db.clients = db.clients.filter(c => c.id !== id); saveDB();
+    function deletePlace(id) {
+      const p = db.places.find(x => x.id === id);
+      if (db.trips.some(t => t.origin === p.name || (t.destinations || []).includes(p.name))) return toast('No se puede borrar: hay viajes usando este destino.');
+      if (!confirm('¿Borrar este destino?')) return;
+      db.places = db.places.filter(p => p.id !== id);
+      saveDB();
     }
 
     function togglePayment(id) {
-      const f = db.freights.find(x => x.id === id);
-      f.payment = f.payment === 'pagado' ? 'pendiente' : 'pagado';
+      const t = db.trips.find(x => x.id === id);
+      t.payment = t.payment === 'pagado' ? 'pendiente' : 'pagado';
       saveDB();
     }
 
@@ -842,8 +940,8 @@
       for (let i = 0; i < startDay; i++) html += `<div class="day"></div>`;
       for (let d = 1; d <= last.getDate(); d++) {
         const iso = `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-        const events = db.freights.filter(f => f.date === iso);
-        html += `<div class="day"><div class="day-number">${d}</div>${events.map(f => `<span class="event-pill">${getClient(f.clientId).name}: ${routeOf(f)}</span>`).join('')}</div>`;
+        const events = db.trips.filter(t => t.date === iso);
+        html += `<div class="day"><div class="day-number">${d}</div>${events.map(t => `<span class="event-pill">${getCompany(t.companyId).name}: ${routeOf(t)}</span>`).join('')}</div>`;
       }
       grid.innerHTML = html;
     }
@@ -858,31 +956,39 @@
     function importData() {
       try {
         const data = JSON.parse(document.getElementById('importBox').value);
-        if (!data.clients || !data.transports || !data.freights) throw new Error('Formato inválido');
-        db = data; saveDB(); toast('Datos importados correctamente.');
-      } catch (e) { toast('JSON inválido. Revisá el texto pegado.'); }
+        if (!data.companies || !data.transports || !data.trips || !data.places) throw new Error('Formato inválido');
+        db = data;
+        saveDB();
+        toast('Datos importados correctamente.');
+      } catch (e) {
+        toast('JSON inválido. Revisá el texto pegado.');
+      }
     }
 
     function resetData() {
       if (!confirm('Esto borra todos los datos cargados. ¿Continuar?')) return;
-      localStorage.removeItem(STORAGE_KEY); db = loadData(); renderAll(); toast('Base reiniciada.');
+      localStorage.removeItem(STORAGE_KEY);
+      db = loadData();
+      renderAll();
+      toast('Base reiniciada.');
     }
 
     function toggleTheme() {
-      const app = document.getElementById('app');
-      const dark = app.getAttribute('data-theme') === 'dark';
-      app.setAttribute('data-theme', dark ? 'light' : 'dark');
-      localStorage.setItem('sistema_fletes_theme', dark ? 'light' : 'dark');
+      const root = document.documentElement;
+      const dark = root.getAttribute('data-theme') === 'dark';
+      root.setAttribute('data-theme', dark ? 'light' : 'dark');
+      localStorage.setItem('control_viajes_theme', dark ? 'light' : 'dark');
     }
 
     function toast(msg) {
       const el = document.getElementById('toast');
-      el.textContent = msg; el.classList.add('show');
+      el.textContent = msg;
+      el.classList.add('show');
       setTimeout(() => el.classList.remove('show'), 2600);
     }
 
-    const savedTheme = localStorage.getItem('sistema_fletes_theme');
-    if (savedTheme) document.getElementById('app').setAttribute('data-theme', savedTheme);
+    const savedTheme = localStorage.getItem('control_viajes_theme');
+    if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
     renderAll();
   </script>
 </body>
