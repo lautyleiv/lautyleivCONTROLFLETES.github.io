@@ -466,62 +466,7 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    async function sendToGoogleSheets(action, payload) {
-      await fetch(APPS_SCRIPT_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: {
-      'Content-Type': 'text/plain;charset=utf-8'
-    },
-    body: JSON.stringify({
-      token: API_TOKEN,
-      action,
-      payload
-      async function saveTrip(e) {
-  e.preventDefault();
-
-  // acá va tu código actual que arma el item
-
-  await sendToGoogleSheets('createTrip', {
-  viaje: {
-    id_viaje: item.id,
-    fecha: item.date,
-    numero_semana: getWeekInfo ? getWeekInfo(item.date).week : '',
-    id_empresa: item.companyId,
-    id_transporte: item.transportId,
-    id_chofer: '',
-    origen: item.origin,
-    trayecto_nombre: item.group || routeOf(item),
-    frecuencia: item.frequency,
-    cada_x_dias: item.everyDays,
-    monto_total: item.amount,
-    estado_viaje: item.status,
-    estado_pago: item.payment,
-    observaciones: item.notes,
-    fecha_carga: new Date().toLocaleString('es-AR')
-  },
-  destinos: item.destinations.map((destino, index) => ({
-    orden: index + 1,
-    nombre_destino: destino
-  })),
-  pago: item.payment === 'pagado'
-    ? {
-        fecha_pago: item.date,
-        monto_pagado: item.amount,
-        metodo_pago: '',
-        observaciones: 'Marcado como pagado desde HTML'
-      }
-    : null
-});
-
-  // después seguís guardando/renderizando en la página
-}
-    })
-  });
-}
     const STORAGE_KEY = 'control_viajes_transportes_v2';
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz7sWlkoNI-bqbcccaliVXALY74ohFUazLbru2nSAT4ohj8vIDGja1TlO9trSIoIcbmWQ/exec';
-    const API_TOKEN = 'fletes-2026';
 
     const sampleData = {
       companies: [
