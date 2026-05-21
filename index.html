@@ -591,6 +591,113 @@
       filter: saturate(1.08) brightness(.98);
     }
 
+  
+
+    /* REPORTES VISUALES */
+    .report-card {
+      display: grid;
+      gap: 14px;
+    }
+
+    .report-total {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: linear-gradient(180deg, rgba(37,99,235,.08), rgba(37,99,235,.02));
+    }
+
+    .report-total .big {
+      font-size: 28px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .report-total .small {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .report-list-visual {
+      display: grid;
+      gap: 12px;
+    }
+
+    .report-row {
+      display: grid;
+      gap: 7px;
+    }
+
+    .report-row-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .report-row-head .meta {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .bar-track {
+      width: 100%;
+      height: 14px;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: rgba(148,163,184,.15);
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      width: 0;
+      background: linear-gradient(90deg, var(--bar-start, #60a5fa), var(--bar-end, #2563eb));
+    }
+
+    .report-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .mini-stat {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: var(--card);
+    }
+
+    .mini-stat .label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .mini-stat .value {
+      font-size: 22px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .report-empty {
+      padding: 18px;
+      text-align: center;
+      color: var(--muted);
+      border: 1px dashed var(--line);
+      border-radius: 16px;
+    }
+
   </style>
 </head>
 <body>
@@ -724,9 +831,29 @@
 
       <section class="tab" id="reportes">
         <div class="grid three">
-          <div class="card"><div class="section-title"><h3>Por frecuencia</h3></div><div id="frequencyReport"></div></div>
-          <div class="card"><div class="section-title"><h3>Por estado</h3></div><div id="statusReport"></div></div>
-          <div class="card"><div class="section-title"><h3>Por transporte</h3></div><div id="transportReport"></div></div>
+          <div class="card report-card">
+            <div class="section-title"><h3>Fletes por frecuencia</h3><span>Distribución visual</span></div>
+            <div id="frequencyReport"></div>
+          </div>
+          <div class="card report-card">
+            <div class="section-title"><h3>Fletes por estado</h3><span>Programados, completados y cancelados</span></div>
+            <div id="statusReport"></div>
+          </div>
+          <div class="card report-card">
+            <div class="section-title"><h3>Uso por transporte</h3><span>Qué unidad se usa más</span></div>
+            <div id="transportReport"></div>
+          </div>
+        </div>
+        <br>
+        <div class="grid two">
+          <div class="card report-card">
+            <div class="section-title"><h3>Resumen de pagos</h3><span>Pagado vs pendiente</span></div>
+            <div id="paymentReport"></div>
+          </div>
+          <div class="card report-card">
+            <div class="section-title"><h3>Montos generales</h3><span>Vista rápida</span></div>
+            <div id="amountReport"></div>
+          </div>
         </div>
       </section>
 
@@ -906,15 +1033,95 @@
 
     function renderReports() {
       const frequencies = countBy(db.freights, f => frequencyLabel(f));
-      const statuses = countBy(db.freights, f => f.status);
+      const statuses = countBy(db.freights, f => capitalize(f.status));
       const transports = countBy(db.freights, f => getTransport(f.transportId).plate);
-      document.getElementById('frequencyReport').innerHTML = reportList(frequencies);
-      document.getElementById('statusReport').innerHTML = reportList(statuses);
-      document.getElementById('transportReport').innerHTML = reportList(transports);
+      const payments = {
+        'Pagado': db.freights.filter(f => f.payment === 'pagado').length,
+        'Pendiente': db.freights.filter(f => f.payment === 'pendiente').length
+      };
+
+      document.getElementById('frequencyReport').innerHTML = reportChart(frequencies, 'frecuencias');
+      document.getElementById('statusReport').innerHTML = reportChart(statuses, 'estados');
+      document.getElementById('transportReport').innerHTML = reportChart(transports, 'transportes');
+      document.getElementById('paymentReport').innerHTML = reportChart(payments, 'pagos');
+
+      const totalMonto = db.freights.reduce((sum, f) => sum + Number(f.amount || 0), 0);
+      const montoPagado = db.freights.filter(f => f.payment === 'pagado').reduce((sum, f) => sum + Number(f.amount || 0), 0);
+      const montoPendiente = db.freights.filter(f => f.payment === 'pendiente').reduce((sum, f) => sum + Number(f.amount || 0), 0);
+      const completados = db.freights.filter(f => f.status === 'completado').length;
+      const programados = db.freights.filter(f => f.status === 'programado').length;
+
+      document.getElementById('amountReport').innerHTML = `
+        <div class="report-grid-2">
+          <div class="mini-stat"><div class="label">Monto total cargado</div><div class="value">${money(totalMonto)}</div></div>
+          <div class="mini-stat"><div class="label">Monto pagado</div><div class="value">${money(montoPagado)}</div></div>
+          <div class="mini-stat"><div class="label">Monto adeudado</div><div class="value">${money(montoPendiente)}</div></div>
+          <div class="mini-stat"><div class="label">Cumplimiento</div><div class="value">${db.freights.length ? Math.round((completados / db.freights.length) * 100) : 0}%</div></div>
+        </div>
+        <div class="report-total">
+          <div>
+            <div class="small">Estado actual de la operación</div>
+            <div class="big">${programados}</div>
+          </div>
+          <div class="small">fletes programados ahora mismo</div>
+        </div>
+      `;
     }
 
-    function countBy(arr, fn) { return arr.reduce((acc, item) => { const k = fn(item); acc[k] = (acc[k] || 0) + 1; return acc; }, {}); }
-    function reportList(obj) { const entries = Object.entries(obj); return entries.length ? entries.map(([k,v]) => `<p style="display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:8px;"><b>${k}</b><span>${v}</span></p>`).join('') : '<div class="empty">Sin datos.</div>'; }
+    function countBy(arr, fn) {
+      return arr.reduce((acc, item) => {
+        const k = fn(item);
+        acc[k] = (acc[k] || 0) + 1;
+        return acc;
+      }, {});
+    }
+
+    function reportChart(obj, label = 'items') {
+      const entries = Object.entries(obj).sort((a, b) => b[1] - a[1]);
+      if (!entries.length) return '<div class="report-empty">Sin datos para mostrar.</div>';
+
+      const total = entries.reduce((sum, [, value]) => sum + value, 0);
+      const palette = [
+        ['#60a5fa', '#2563eb'],
+        ['#34d399', '#059669'],
+        ['#fbbf24', '#f59e0b'],
+        ['#a78bfa', '#7c3aed'],
+        ['#fb7185', '#e11d48'],
+        ['#22d3ee', '#0891b2']
+      ];
+
+      return `
+        <div class="report-total">
+          <div>
+            <div class="small">Total de ${label}</div>
+            <div class="big">${total}</div>
+          </div>
+          <div class="small">${entries.length} categoría${entries.length !== 1 ? 's' : ''}</div>
+        </div>
+        <div class="report-list-visual">
+          ${entries.map(([key, value], index) => {
+            const percent = total ? ((value / total) * 100) : 0;
+            const [start, end] = palette[index % palette.length];
+            return `
+              <div class="report-row">
+                <div class="report-row-head">
+                  <span>${key}</span>
+                  <span class="meta">${value} · ${percent.toFixed(0)}%</span>
+                </div>
+                <div class="bar-track">
+                  <div class="bar-fill" style="width:${percent}%; --bar-start:${start}; --bar-end:${end};"></div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    function capitalize(text) {
+      const value = String(text || '');
+      return value.charAt(0).toUpperCase() + value.slice(1);
+    }
 
     function renderFreightSelects() {
       const clientSelect = document.getElementById('freightClient');
