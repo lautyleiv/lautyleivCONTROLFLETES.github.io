@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sistema de Gestión de Fletes</title>
+  <title>Sistema de Control de Fletes Contratados</title>
   <style>
     :root {
       --bg: #f3f6fb;
@@ -706,16 +706,16 @@
       <div class="brand">
         <div class="brand-icon">🚚</div>
         <div>
-          <h1>Fletes<br>Mi Negocio</h1>
-          <span>Sistema de gestión</span>
+          <h1>Fletes<br>Contratados</h1>
+          <span>Control de viajes y pagos</span>
         </div>
       </div>
 
       <nav class="nav">
         <button class="active" data-tab="dashboard">📊 Dashboard</button>
-        <button data-tab="fletes">🚛 Fletes</button>
-        <button data-tab="transportes">🚚 Transportes</button>
-        <button data-tab="clientes">👥 Clientes</button>
+        <button data-tab="fletes">🚛 Viajes</button>
+        <button data-tab="transportes">🚚 Unidades</button>
+        <button data-tab="clientes">🏢 Empresas</button>
         <button data-tab="calendario">📅 Calendario</button>
         <button data-tab="pagos">💵 Pagos</button>
         <button data-tab="reportes">📈 Reportes</button>
@@ -727,27 +727,27 @@
       <header class="topbar">
         <div>
           <h2 id="pageTitle">Dashboard</h2>
-          <p>Controlá fletes diarios, semanales o cada X cantidad de días, con multidestinos y transportes editables.</p>
+          <p>Controlá los viajes que contratás a empresas de transporte, sus recorridos, costos, pagos pendientes y unidades asignadas.</p>
         </div>
         <div class="actions">
           <button class="btn secondary" onclick="toggleTheme()">🌗 Modo claro/oscuro</button>
-          <button class="btn" onclick="openFreightModal()">+ Nuevo flete</button>
+          <button class="btn" onclick="openFreightModal()">+ Nuevo viaje contratado</button>
         </div>
       </header>
 
       <section class="tab active" id="dashboard">
         <div class="grid kpis">
-          <div class="card kpi"><div><div class="label">Fletes activos</div><div class="value" id="kpiActive">0</div></div><div class="icon">🚛</div></div>
-          <div class="card kpi"><div><div class="label">Transportes activos</div><div class="value" id="kpiTransport">0</div></div><div class="icon">🚚</div></div>
+          <div class="card kpi"><div><div class="label">Viajes activos</div><div class="value" id="kpiActive">0</div></div><div class="icon">🚛</div></div>
+          <div class="card kpi"><div><div class="label">Unidades activas</div><div class="value" id="kpiTransport">0</div></div><div class="icon">🚚</div></div>
           <div class="card kpi"><div><div class="label">Programados</div><div class="value" id="kpiScheduled">0</div></div><div class="icon">📅</div></div>
-          <div class="card kpi"><div><div class="label">Ingresos del mes</div><div class="value" id="kpiIncome">$0</div></div><div class="icon">💵</div></div>
+          <div class="card kpi"><div><div class="label">Pagado del mes</div><div class="value" id="kpiIncome">$0</div></div><div class="icon">💵</div></div>
           <div class="card kpi"><div><div class="label">Completados</div><div class="value" id="kpiDone">0</div></div><div class="icon">✅</div></div>
         </div>
 
         <div class="grid two">
           <div class="card">
-            <div class="section-title"><h3>Próximos fletes programados</h3><span>Ordenados por fecha</span></div>
-            <div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Cliente</th><th>Ruta</th><th>Frecuencia</th><th>Transporte</th><th>Estado</th></tr></thead><tbody id="upcomingTable"></tbody></table></div>
+            <div class="section-title"><h3>Próximos viajes programados</h3><span>Ordenados por fecha</span></div>
+            <div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Empresa</th><th>Ruta</th><th>Frecuencia</th><th>Transporte</th><th>Estado</th></tr></thead><tbody id="upcomingTable"></tbody></table></div>
           </div>
           <div class="card">
             <div class="section-title"><h3>Resumen rápido</h3><span>Estado general</span></div>
@@ -759,30 +759,30 @@
       <section class="tab" id="fletes">
         <div class="card">
           <div class="toolbar">
-            <input class="search" id="freightSearch" placeholder="Buscar por cliente, origen, destino o transporte..." oninput="renderFreights()" />
-            <button class="btn" onclick="openFreightModal()">+ Agregar flete</button>
+            <input class="search" id="freightSearch" placeholder="Buscar por empresa, origen, destino, unidad o chofer..." oninput="renderFreights()" />
+            <button class="btn" onclick="openFreightModal()">+ Agregar viaje</button>
           </div>
-          <div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Cliente</th><th>Ruta</th><th>Frecuencia</th><th>Monto</th><th>Transporte</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="freightsTable"></tbody></table></div>
+          <div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Empresa</th><th>Ruta</th><th>Frecuencia</th><th>Monto</th><th>Transporte</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="freightsTable"></tbody></table></div>
         </div>
       </section>
 
       <section class="tab" id="transportes">
         <div class="grid two">
           <div class="card">
-            <div class="section-title"><h3>Transportes / vehículos</h3><span>Alta, baja y edición</span></div>
+            <div class="section-title"><h3>Unidades / vehículos contratados</h3><span>Alta, baja y edición</span></div>
             <div class="table-wrap"><table><thead><tr><th>Patente</th><th>Chofer</th><th>Tipo</th><th>Capacidad</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="transportTable"></tbody></table></div>
           </div>
           <div class="card">
-            <div class="section-title"><h3 id="transportFormTitle">Agregar transporte</h3></div>
+            <div class="section-title"><h3 id="transportFormTitle">Agregar unidad</h3></div>
             <form id="transportForm" onsubmit="saveTransport(event)">
               <input type="hidden" id="transportId" />
               <div class="form-grid one">
                 <div class="field"><label>Patente</label><input id="transportPlate" required placeholder="Ej. AB 123 CD" /></div>
-                <div class="field"><label>Chofer</label><input id="transportDriver" required placeholder="Nombre del chofer" /></div>
+                <div class="field"><label>Chofer / Referente</label><input id="transportDriver" required placeholder="Nombre del chofer o referente" /></div>
                 <div class="field"><label>Tipo</label><select id="transportType"><option>Camión furgón</option><option>Camión semi</option><option>Camión chasis</option><option>Camioneta</option><option>Utilitario</option></select></div>
                 <div class="field"><label>Capacidad</label><input id="transportCapacity" placeholder="Ej. 10.000 kg" /></div>
                 <div class="field"><label>Estado</label><select id="transportStatus"><option value="activo">Activo</option><option value="inactivo">Inactivo</option></select></div>
-                <button class="btn green" type="submit">Guardar transporte</button>
+                <button class="btn green" type="submit">Guardar unidad</button>
               </div>
             </form>
           </div>
@@ -792,19 +792,19 @@
       <section class="tab" id="clientes">
         <div class="grid two">
           <div class="card">
-            <div class="section-title"><h3>Clientes</h3><span>Agenda básica</span></div>
-            <div class="table-wrap"><table><thead><tr><th>Nombre</th><th>Teléfono</th><th>Dirección</th><th>Acciones</th></tr></thead><tbody id="clientsTable"></tbody></table></div>
+            <div class="section-title"><h3>Empresas contratadas</h3><span>Agenda de proveedores de flete</span></div>
+            <div class="table-wrap"><table><thead><tr><th>Nombre</th><th>Teléfono</th><th>Zona/Base</th><th>Acciones</th></tr></thead><tbody id="clientsTable"></tbody></table></div>
           </div>
           <div class="card">
-            <div class="section-title"><h3 id="clientFormTitle">Agregar cliente</h3></div>
+            <div class="section-title"><h3 id="clientFormTitle">Agregar empresa</h3></div>
             <form id="clientForm" onsubmit="saveClient(event)">
               <input type="hidden" id="clientId" />
               <div class="form-grid one">
-                <div class="field"><label>Nombre</label><input id="clientName" required placeholder="Nombre o razón social" /></div>
+                <div class="field"><label>Empresa</label><input id="clientName" required placeholder="Nombre o razón social" /></div>
                 <div class="field"><label>Teléfono</label><input id="clientPhone" placeholder="Teléfono" /></div>
-                <div class="field"><label>Dirección</label><input id="clientAddress" placeholder="Dirección" /></div>
+                <div class="field"><label>Zona / base</label><input id="clientAddress" placeholder="Zona, base o dirección" /></div>
                 <div class="field"><label>Email</label><input id="clientEmail" type="email" placeholder="Email" /></div>
-                <button class="btn green" type="submit">Guardar cliente</button>
+                <button class="btn green" type="submit">Guardar empresa</button>
               </div>
             </form>
           </div>
@@ -824,23 +824,23 @@
 
       <section class="tab" id="pagos">
         <div class="card">
-          <div class="section-title"><h3>Control de pagos</h3><span>Marcá como pagado o pendiente</span></div>
-          <div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Cliente</th><th>Ruta</th><th>Monto</th><th>Estado pago</th><th>Acciones</th></tr></thead><tbody id="paymentsTable"></tbody></table></div>
+          <div class="section-title"><h3>Control de pagos a empresas</h3><span>Marcá qué viajes ya pagaste y cuáles quedan pendientes</span></div>
+          <div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Empresa</th><th>Ruta</th><th>Monto</th><th>Estado pago</th><th>Acciones</th></tr></thead><tbody id="paymentsTable"></tbody></table></div>
         </div>
       </section>
 
       <section class="tab" id="reportes">
         <div class="grid three">
           <div class="card report-card">
-            <div class="section-title"><h3>Fletes por frecuencia</h3><span>Distribución visual</span></div>
+            <div class="section-title"><h3>Viajes por frecuencia</h3><span>Distribución visual</span></div>
             <div id="frequencyReport"></div>
           </div>
           <div class="card report-card">
-            <div class="section-title"><h3>Fletes por estado</h3><span>Programados, completados y cancelados</span></div>
+            <div class="section-title"><h3>Viajes por estado</h3><span>Programados, completados y cancelados</span></div>
             <div id="statusReport"></div>
           </div>
           <div class="card report-card">
-            <div class="section-title"><h3>Uso por transporte</h3><span>Qué unidad se usa más</span></div>
+            <div class="section-title"><h3>Uso por unidad</h3><span>Qué transporte se usa más</span></div>
             <div id="transportReport"></div>
           </div>
         </div>
@@ -861,7 +861,7 @@
         <div class="grid two">
           <div class="card">
             <div class="section-title"><h3>Base de datos local</h3><span>Se guarda en este navegador</span></div>
-            <p style="color: var(--muted); line-height: 1.6;">Esta primera versión funciona sin servidor. Guarda la información en <b>LocalStorage</b>. Después se puede conectar a MySQL, Firebase, Supabase o Excel/Google Sheets.</p>
+            <p style="color: var(--muted); line-height: 1.6;">Esta versión funciona sin servidor y guarda tus viajes contratados, empresas, unidades y pagos en <b>LocalStorage</b>. Después se puede conectar a Google Sheets, Firebase, Supabase o una base externa.</p>
             <div class="actions">
               <button class="btn secondary" onclick="exportData()">Exportar backup JSON</button>
               <button class="btn danger" onclick="resetData()">Borrar toda la base</button>
@@ -869,7 +869,7 @@
           </div>
           <div class="card">
             <div class="section-title"><h3>Importar backup</h3></div>
-            <textarea id="importBox" placeholder="Pegá acá el JSON exportado"></textarea>
+            <textarea id="importBox" placeholder="Pegá acá el JSON exportado. Acepta formato nuevo companies/trips o formato anterior clients/freights."></textarea>
             <br><br>
             <button class="btn" onclick="importData()">Importar datos</button>
           </div>
@@ -881,35 +881,35 @@
   <div class="modal-backdrop" id="freightModal">
     <div class="modal">
       <div class="modal-head">
-        <h3 id="freightModalTitle">Nuevo flete</h3>
+        <h3 id="freightModalTitle">Nuevo viaje contratado</h3>
         <button class="btn secondary small" onclick="closeFreightModal()">Cerrar</button>
       </div>
       <form id="freightForm" onsubmit="saveFreight(event)">
         <input type="hidden" id="freightId" />
         <div class="form-grid">
-          <div class="field"><label>Cliente</label><select id="freightClient" required></select></div>
-          <div class="field"><label>Transporte</label><select id="freightTransport" required></select></div>
-          <div class="field"><label>Fecha programada</label><input id="freightDate" type="date" required /></div>
+          <div class="field"><label>Empresa contratada</label><select id="freightClient" required></select></div>
+          <div class="field"><label>Unidad / transporte</label><select id="freightTransport" required></select></div>
+          <div class="field"><label>Fecha del viaje</label><input id="freightDate" type="date" required /></div>
           <div class="field"><label>Frecuencia</label><select id="freightFrequency" onchange="toggleCustomDays()"><option value="unico">Único</option><option value="diario">Diario</option><option value="semanal">Semanal</option><option value="cada_x">Cada X días</option></select></div>
           <div class="field" id="customDaysField" style="display:none"><label>Cada cuántos días</label><input id="freightEveryDays" type="number" min="1" value="3" /></div>
-          <div class="field"><label>Monto</label><input id="freightAmount" type="number" min="0" step="0.01" placeholder="0" /></div>
+          <div class="field"><label>Costo / importe a pagar</label><input id="freightAmount" type="number" min="0" step="0.01" placeholder="0" /></div>
           <div class="field"><label>Estado</label><select id="freightStatus"><option value="programado">Programado</option><option value="completado">Completado</option><option value="cancelado">Cancelado</option></select></div>
-          <div class="field"><label>Estado de pago</label><select id="freightPayment"><option value="pendiente">Pendiente</option><option value="pagado">Pagado</option></select></div>
+          <div class="field"><label>Pago a la empresa</label><select id="freightPayment"><option value="pendiente">Pendiente</option><option value="pagado">Pagado</option></select></div>
         </div>
         <br>
         <div class="field"><label>Origen</label><input id="freightOrigin" required placeholder="Ej. Junín" /></div>
         <br>
         <div class="card" style="box-shadow:none; padding:14px;">
-          <div class="section-title"><h3>Multidestinos</h3><button type="button" class="btn secondary small" onclick="addDestination()">+ Agregar destino</button></div>
+          <div class="section-title"><h3>Recorrido / multidestinos</h3><button type="button" class="btn secondary small" onclick="addDestination()">+ Agregar destino</button></div>
           <div class="destination-list" id="destinationsList"></div>
-          <p style="color: var(--muted); font-size: 13px; margin-bottom: 0;">El flete seguirá los destinos en el orden indicado.</p>
+          <p style="color: var(--muted); font-size: 13px; margin-bottom: 0;">El viaje seguirá los destinos en el orden indicado.</p>
         </div>
         <br>
-        <div class="field"><label>Descripción / observaciones</label><textarea id="freightNotes" placeholder="Detalle del flete, horarios, contacto, mercadería, etc."></textarea></div>
+        <div class="field"><label>Descripción / observaciones</label><textarea id="freightNotes" placeholder="Detalle del viaje, horarios, contacto, mercadería, remitos, etc."></textarea></div>
         <br>
         <div class="actions" style="justify-content:flex-end">
           <button class="btn secondary" type="button" onclick="closeFreightModal()">Cancelar</button>
-          <button class="btn green" type="submit">Guardar flete</button>
+          <button class="btn green" type="submit">Guardar viaje</button>
         </div>
       </form>
     </div>
@@ -922,14 +922,14 @@
 
     const sampleData = {
       clients: [
-        { id: uid(), name: 'Juan Pérez', phone: '2324-000000', address: 'Junín, Bs. As.', email: '' },
-        { id: uid(), name: 'María García', phone: '236-000000', address: 'Chacabuco, Bs. As.', email: '' },
-        { id: uid(), name: 'Construcciones SA', phone: '11-0000-0000', address: 'Pergamino, Bs. As.', email: '' }
+        { id: uid(), name: 'Sinergizados', phone: '', address: 'Zona Norte', email: '' },
+        { id: uid(), name: 'Hernán Gómez', phone: '', address: 'Interior', email: '' },
+        { id: uid(), name: 'Alejo Truck', phone: '', address: 'Interior', email: '' }
       ],
       transports: [
-        { id: uid(), plate: 'AB 123 CD', driver: 'Juan López', type: 'Camión furgón', capacity: '10.000 kg', status: 'activo' },
-        { id: uid(), plate: 'AC 456 EF', driver: 'Pedro Gómez', type: 'Camión semi', capacity: '20.000 kg', status: 'activo' },
-        { id: uid(), plate: 'AD 789 GH', driver: 'Luis Martínez', type: 'Camión chasis', capacity: '15.000 kg', status: 'inactivo' }
+        { id: uid(), plate: 'AH702XG', driver: 'Sinergizados', type: 'Camión semi', capacity: '10.000 kg', status: 'activo' },
+        { id: uid(), plate: 'ABC123', driver: 'Gustavo', type: 'Camión semi', capacity: '27.000 kg', status: 'activo' },
+        { id: uid(), plate: 'DEF123', driver: 'Hernán', type: 'Camión semi', capacity: '27.000 kg', status: 'activo' }
       ],
       freights: []
     };
@@ -939,14 +939,40 @@
 
     function uid() { return 'id_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36); }
 
+
+    function normalizeData(data) {
+      const raw = data || {};
+      const companies = Array.isArray(raw.clients) ? raw.clients : (Array.isArray(raw.companies) ? raw.companies : []);
+      const transports = Array.isArray(raw.transports) ? raw.transports : [];
+      const tripsRaw = Array.isArray(raw.freights) ? raw.freights : (Array.isArray(raw.trips) ? raw.trips : []);
+      const places = Array.isArray(raw.places) ? raw.places : [];
+
+      const freights = tripsRaw.map(item => ({
+        ...item,
+        clientId: item.clientId || item.companyId || '',
+        companyId: item.companyId || item.clientId || '',
+        destinations: Array.isArray(item.destinations) ? item.destinations : []
+      }));
+
+      return {
+        clients: companies,
+        transports,
+        freights,
+        places
+      };
+    }
+
     function loadData() {
       const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        try { return normalizeData(JSON.parse(saved)); }
+        catch (e) { console.warn('No se pudo leer la base local:', e); }
+      }
       const data = structuredClone(sampleData);
       data.freights = [
-        { id: uid(), clientId: data.clients[0].id, transportId: data.transports[0].id, date: todayISO(), frequency: 'diario', everyDays: 1, amount: 45000, status: 'programado', payment: 'pendiente', origin: 'Junín', destinations: ['Chacabuco', 'Pergamino'], notes: 'Retiro por la mañana.' },
-        { id: uid(), clientId: data.clients[1].id, transportId: data.transports[1].id, date: addDaysISO(1), frequency: 'semanal', everyDays: 7, amount: 62000, status: 'programado', payment: 'pendiente', origin: 'Junín', destinations: ['Laredo'], notes: '' },
-        { id: uid(), clientId: data.clients[2].id, transportId: data.transports[0].id, date: addDaysISO(-2), frequency: 'unico', everyDays: 0, amount: 58000, status: 'completado', payment: 'pagado', origin: 'Junín', destinations: ['San Luis', 'Mendoza'], notes: '' }
+        { id: uid(), clientId: data.clients[0].id, transportId: data.transports[0].id, date: todayISO(), frequency: 'diario', everyDays: 1, amount: 360000, status: 'programado', payment: 'pendiente', origin: 'Santa Faz', destinations: ['Deltacar S.A.', 'Santa Faz'], notes: 'Viaje contratado.' },
+        { id: uid(), clientId: data.clients[1].id, transportId: data.transports[1].id, date: addDaysISO(1), frequency: 'unico', everyDays: 0, amount: 1180000, status: 'programado', payment: 'pendiente', origin: 'Santa Faz', destinations: ['Alba Co.', 'Santa Faz'], notes: '' },
+        { id: uid(), clientId: data.clients[2].id, transportId: data.transports[2].id, date: addDaysISO(-2), frequency: 'unico', everyDays: 0, amount: 980000, status: 'completado', payment: 'pagado', origin: 'Santa Faz', destinations: ['Cooperativa Parana', 'Santa Faz'], notes: '' }
       ];
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       return data;
@@ -957,7 +983,7 @@
     function addDaysISO(days) { const d = new Date(); d.setDate(d.getDate() + days); return d.toISOString().slice(0,10); }
     function money(n) { return '$' + Number(n || 0).toLocaleString('es-AR', { maximumFractionDigits: 0 }); }
     function fmtDate(iso) { if (!iso) return '-'; const [y,m,d] = iso.split('-'); return `${d}/${m}/${y.slice(2)}`; }
-    function getClient(id) { return db.clients.find(c => c.id === id) || { name: 'Sin cliente' }; }
+    function getClient(id) { return db.clients.find(c => c.id === id) || { name: 'Sin empresa' }; }
     function getTransport(id) { return db.transports.find(t => t.id === id) || { plate: 'Sin transporte', driver: '' }; }
     function routeOf(f) { return `${f.origin || '-'} → ${(f.destinations || []).join(' → ') || '-'}`; }
     function frequencyLabel(f) { return f.frequency === 'cada_x' ? `Cada ${f.everyDays || 1} días` : ({ unico: 'Único', diario: 'Diario', semanal: 'Semanal' }[f.frequency] || f.frequency); }
@@ -968,7 +994,7 @@
         btn.classList.add('active');
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.getElementById(btn.dataset.tab).classList.add('active');
-        document.getElementById('pageTitle').textContent = btn.textContent.replace(/[📊🚛🚚👥📅💵📈⚙️]/g, '').trim();
+        document.getElementById('pageTitle').textContent = btn.textContent.replace(/[📊🚛🚚🏢👥📅💵📈⚙️]/g, '').trim();
         if (btn.dataset.tab === 'calendario') renderCalendar();
       });
     });
@@ -994,12 +1020,12 @@
     function renderUpcoming() {
       const tbody = document.getElementById('upcomingTable');
       const rows = db.freights.filter(f => f.status === 'programado').sort((a,b) => a.date.localeCompare(b.date)).slice(0, 8);
-      tbody.innerHTML = rows.length ? rows.map(f => `<tr><td>${fmtDate(f.date)}</td><td>${getClient(f.clientId).name}</td><td class="route">${routeOf(f)}</td><td>${frequencyLabel(f)}</td><td>${getTransport(f.transportId).plate}</td><td>${badge(f.status)}</td></tr>`).join('') : `<tr><td colspan="6"><div class="empty">No hay fletes programados.</div></td></tr>`;
+      tbody.innerHTML = rows.length ? rows.map(f => `<tr><td>${fmtDate(f.date)}</td><td>${getClient(f.clientId).name}</td><td class="route">${routeOf(f)}</td><td>${frequencyLabel(f)}</td><td>${getTransport(f.transportId).plate}</td><td>${badge(f.status)}</td></tr>`).join('') : `<tr><td colspan="6"><div class="empty">No hay viajes programados.</div></td></tr>`;
       document.getElementById('summaryBox').innerHTML = `
-        <p><b>${db.freights.length}</b> fletes cargados en total.</p>
-        <p><b>${db.clients.length}</b> clientes en agenda.</p>
-        <p><b>${db.transports.length}</b> transportes cargados, de los cuales <b>${db.transports.filter(t => t.status === 'activo').length}</b> están activos.</p>
-        <p><b>${db.freights.filter(f => (f.destinations || []).length > 1).length}</b> fletes tienen multidestino.</p>
+        <p><b>${db.freights.length}</b> viajes contratados cargados en total.</p>
+        <p><b>${db.clients.length}</b> empresas contratadas registradas.</p>
+        <p><b>${db.transports.length}</b> unidades cargadas, de los cuales <b>${db.transports.filter(t => t.status === 'activo').length}</b> están activos.</p>
+        <p><b>${db.freights.filter(f => (f.destinations || []).length > 1).length}</b> viajes tienen multidestino.</p>
       `;
     }
 
@@ -1013,17 +1039,17 @@
       tbody.innerHTML = rows.length ? rows.map(f => `<tr>
         <td>${fmtDate(f.date)}</td><td>${getClient(f.clientId).name}</td><td class="route">${routeOf(f)}</td><td>${frequencyLabel(f)}</td><td class="money">${money(f.amount)}</td><td>${getTransport(f.transportId).plate}<br><small>${getTransport(f.transportId).driver || ''}</small></td><td>${badge(f.status)}</td>
         <td><button class="btn secondary small" onclick="openFreightModal('${f.id}')">Editar</button> <button class="btn danger small" onclick="deleteFreight('${f.id}')">Borrar</button></td>
-      </tr>`).join('') : `<tr><td colspan="8"><div class="empty">No hay fletes cargados.</div></td></tr>`;
+      </tr>`).join('') : `<tr><td colspan="8"><div class="empty">No hay viajes cargados.</div></td></tr>`;
     }
 
     function renderTransports() {
       const tbody = document.getElementById('transportTable');
-      tbody.innerHTML = db.transports.length ? db.transports.map(t => `<tr><td>${t.plate}</td><td>${t.driver}</td><td>${t.type}</td><td>${t.capacity || '-'}</td><td>${badge(t.status)}</td><td><button class="btn secondary small" onclick="editTransport('${t.id}')">Editar</button> <button class="btn danger small" onclick="deleteTransport('${t.id}')">Borrar</button></td></tr>`).join('') : `<tr><td colspan="6"><div class="empty">No hay transportes cargados.</div></td></tr>`;
+      tbody.innerHTML = db.transports.length ? db.transports.map(t => `<tr><td>${t.plate}</td><td>${t.driver}</td><td>${t.type}</td><td>${t.capacity || '-'}</td><td>${badge(t.status)}</td><td><button class="btn secondary small" onclick="editTransport('${t.id}')">Editar</button> <button class="btn danger small" onclick="deleteTransport('${t.id}')">Borrar</button></td></tr>`).join('') : `<tr><td colspan="6"><div class="empty">No hay unidades cargadas.</div></td></tr>`;
     }
 
     function renderClients() {
       const tbody = document.getElementById('clientsTable');
-      tbody.innerHTML = db.clients.length ? db.clients.map(c => `<tr><td>${c.name}</td><td>${c.phone || '-'}</td><td>${c.address || '-'}</td><td><button class="btn secondary small" onclick="editClient('${c.id}')">Editar</button> <button class="btn danger small" onclick="deleteClient('${c.id}')">Borrar</button></td></tr>`).join('') : `<tr><td colspan="4"><div class="empty">No hay clientes cargados.</div></td></tr>`;
+      tbody.innerHTML = db.clients.length ? db.clients.map(c => `<tr><td>${c.name}</td><td>${c.phone || '-'}</td><td>${c.address || '-'}</td><td><button class="btn secondary small" onclick="editClient('${c.id}')">Editar</button> <button class="btn danger small" onclick="deleteClient('${c.id}')">Borrar</button></td></tr>`).join('') : `<tr><td colspan="4"><div class="empty">No hay empresas cargadas.</div></td></tr>`;
     }
 
     function renderPayments() {
@@ -1053,9 +1079,9 @@
 
       document.getElementById('amountReport').innerHTML = `
         <div class="report-grid-2">
-          <div class="mini-stat"><div class="label">Monto total cargado</div><div class="value">${money(totalMonto)}</div></div>
-          <div class="mini-stat"><div class="label">Monto pagado</div><div class="value">${money(montoPagado)}</div></div>
-          <div class="mini-stat"><div class="label">Monto adeudado</div><div class="value">${money(montoPendiente)}</div></div>
+          <div class="mini-stat"><div class="label">Costo total cargado</div><div class="value">${money(totalMonto)}</div></div>
+          <div class="mini-stat"><div class="label">Total pagado</div><div class="value">${money(montoPagado)}</div></div>
+          <div class="mini-stat"><div class="label">Total adeudado</div><div class="value">${money(montoPendiente)}</div></div>
           <div class="mini-stat"><div class="label">Cumplimiento</div><div class="value">${db.freights.length ? Math.round((completados / db.freights.length) * 100) : 0}%</div></div>
         </div>
         <div class="report-total">
@@ -1063,7 +1089,7 @@
             <div class="small">Estado actual de la operación</div>
             <div class="big">${programados}</div>
           </div>
-          <div class="small">fletes programados ahora mismo</div>
+          <div class="small">viajes programados ahora mismo</div>
         </div>
       `;
     }
@@ -1134,7 +1160,7 @@
     function openFreightModal(id = null) {
       editingFreightId = id;
       renderFreightSelects();
-      document.getElementById('freightModalTitle').textContent = id ? 'Editar flete' : 'Nuevo flete';
+      document.getElementById('freightModalTitle').textContent = id ? 'Editar viaje contratado' : 'Nuevo viaje contratado';
       document.getElementById('freightForm').reset();
       document.getElementById('freightId').value = id || '';
       if (id) {
@@ -1208,18 +1234,18 @@
       };
       const ix = db.freights.findIndex(f => f.id === item.id);
       if (ix >= 0) db.freights[ix] = item; else db.freights.push(item);
-      saveDB(); closeFreightModal(); toast('Flete guardado correctamente.');
+      saveDB(); closeFreightModal(); toast('Viaje guardado correctamente.');
     }
 
-    function deleteFreight(id) { if (!confirm('¿Borrar este flete?')) return; db.freights = db.freights.filter(f => f.id !== id); saveDB(); }
+    function deleteFreight(id) { if (!confirm('¿Borrar este viaje?')) return; db.freights = db.freights.filter(f => f.id !== id); saveDB(); }
 
     function saveTransport(e) {
       e.preventDefault();
       const item = { id: document.getElementById('transportId').value || uid(), plate: document.getElementById('transportPlate').value.trim(), driver: document.getElementById('transportDriver').value.trim(), type: document.getElementById('transportType').value, capacity: document.getElementById('transportCapacity').value.trim(), status: document.getElementById('transportStatus').value };
       const ix = db.transports.findIndex(t => t.id === item.id);
       if (ix >= 0) db.transports[ix] = item; else db.transports.push(item);
-      document.getElementById('transportForm').reset(); document.getElementById('transportId').value = ''; document.getElementById('transportFormTitle').textContent = 'Agregar transporte';
-      saveDB(); toast('Transporte guardado.');
+      document.getElementById('transportForm').reset(); document.getElementById('transportId').value = ''; document.getElementById('transportFormTitle').textContent = 'Agregar unidad';
+      saveDB(); toast('Unidad guardada.');
     }
 
     function editTransport(id) {
@@ -1234,8 +1260,8 @@
     }
 
     function deleteTransport(id) {
-      if (db.freights.some(f => f.transportId === id)) return toast('No se puede borrar: hay fletes usando este transporte. Podés ponerlo inactivo.');
-      if (!confirm('¿Borrar este transporte?')) return;
+      if (db.freights.some(f => f.transportId === id)) return toast('No se puede borrar: hay viajes usando esta unidad. Podés ponerla inactiva.');
+      if (!confirm('¿Borrar esta unidad?')) return;
       db.transports = db.transports.filter(t => t.id !== id); saveDB();
     }
 
@@ -1244,8 +1270,8 @@
       const item = { id: document.getElementById('clientId').value || uid(), name: document.getElementById('clientName').value.trim(), phone: document.getElementById('clientPhone').value.trim(), address: document.getElementById('clientAddress').value.trim(), email: document.getElementById('clientEmail').value.trim() };
       const ix = db.clients.findIndex(c => c.id === item.id);
       if (ix >= 0) db.clients[ix] = item; else db.clients.push(item);
-      document.getElementById('clientForm').reset(); document.getElementById('clientId').value = ''; document.getElementById('clientFormTitle').textContent = 'Agregar cliente';
-      saveDB(); toast('Cliente guardado.');
+      document.getElementById('clientForm').reset(); document.getElementById('clientId').value = ''; document.getElementById('clientFormTitle').textContent = 'Agregar empresa';
+      saveDB(); toast('Empresa guardada.');
     }
 
     function editClient(id) {
@@ -1259,8 +1285,8 @@
     }
 
     function deleteClient(id) {
-      if (db.freights.some(f => f.clientId === id)) return toast('No se puede borrar: hay fletes cargados para este cliente.');
-      if (!confirm('¿Borrar este cliente?')) return;
+      if (db.freights.some(f => f.clientId === id)) return toast('No se puede borrar: hay viajes cargados para esta empresa.');
+      if (!confirm('¿Borrar esta empresa?')) return;
       db.clients = db.clients.filter(c => c.id !== id); saveDB();
     }
 
@@ -1405,7 +1431,16 @@
 
 
     function exportData() {
-      const data = JSON.stringify(db, null, 2);
+      const exportDB = {
+        companies: db.clients || [],
+        transports: db.transports || [],
+        places: db.places || [],
+        trips: (db.freights || []).map(item => ({
+          ...item,
+          companyId: item.companyId || item.clientId || ''
+        }))
+      };
+      const data = JSON.stringify(exportDB, null, 2);
       navigator.clipboard?.writeText(data);
       document.getElementById('importBox').value = data;
       toast('Backup copiado y pegado en el cuadro de importación.');
@@ -1413,10 +1448,16 @@
 
     function importData() {
       try {
-        const data = JSON.parse(document.getElementById('importBox').value);
-        if (!data.clients || !data.transports || !data.freights) throw new Error('Formato inválido');
-        db = data; saveDB(); toast('Datos importados correctamente.');
-      } catch (e) { toast('JSON inválido. Revisá el texto pegado.'); }
+        const raw = JSON.parse(document.getElementById('importBox').value);
+        const data = normalizeData(raw);
+        if (!Array.isArray(data.clients) || !Array.isArray(data.transports) || !Array.isArray(data.freights)) throw new Error('Formato inválido');
+        db = data;
+        saveDB();
+        toast('Datos importados correctamente.');
+      } catch (e) {
+        console.error(e);
+        toast('JSON inválido. Revisá el texto pegado.');
+      }
     }
 
     function resetData() {
