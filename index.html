@@ -57,6 +57,8 @@ table{width:100%;border-collapse:collapse}th,td{padding:12px 10px;border-bottom:
 .summaryBox{white-space:pre-wrap;background:rgba(37,99,235,.06);border:1px solid var(--line);border-radius:16px;padding:14px;color:var(--text);line-height:1.55}
 html[data-theme=dark] .card,html[data-theme=dark] .modal,html[data-theme=dark] .day,html[data-theme=dark] .dayName,html[data-theme=dark] .weekCell,html[data-theme=dark] .weekName,html[data-theme=dark] input,html[data-theme=dark] select,html[data-theme=dark] textarea,html[data-theme=dark] .btn.secondary,html[data-theme=dark] .week-block,html[data-theme=dark] .pill,html[data-theme=dark] .legendChip,html[data-theme=dark] .route-card{background:#111827!important;color:#f8fafc!important;border-color:#263244!important}html[data-theme=dark] .card{background:linear-gradient(180deg,#111827,#0f172a)!important}html[data-theme=dark] .topbar p,html[data-theme=dark] label,html[data-theme=dark] th,html[data-theme=dark] .section-title span,html[data-theme=dark] .chart-total,html[data-theme=dark] .week-title span,html[data-theme=dark] .route-meta{color:#94a3b8!important}html[data-theme=dark] table,html[data-theme=dark] th,html[data-theme=dark] td{border-color:#263244!important}
 @media(max-width:1200px){.kpis{grid-template-columns:repeat(3,1fr)}.hero{grid-template-columns:1fr}.filter-grid{grid-template-columns:repeat(3,1fr)}}@media(max-width:900px){.app{grid-template-columns:1fr}.sidebar{position:static;height:auto}.nav{grid-template-columns:repeat(2,1fr)}.grid.two,.grid.three,.grid.four{grid-template-columns:1fr}.tableWrap,.calendarWrap{overflow:auto}.calendar{min-width:1100px}}@media(max-width:680px){.main{padding:14px}.topbar{align-items:flex-start;flex-direction:column}.kpis{grid-template-columns:1fr}.formGrid,.filter-grid{grid-template-columns:1fr}.nav{grid-template-columns:1fr}th,td{min-width:130px}}
+
+.alert-card{border:1px solid var(--line);border-radius:16px;padding:14px;background:var(--panel);display:grid;gap:8px;margin-bottom:10px}.alert-card strong{font-size:15px}.quickHint{color:var(--muted);font-size:13px}.auditLine{padding:8px 0;border-bottom:1px solid var(--line);font-size:13px;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -65,7 +67,11 @@ html[data-theme=dark] .card,html[data-theme=dark] .modal,html[data-theme=dark] .
   <div class="brand"><div class="brandIcon">🚚</div><div><h1>Viajes<br>Contratados</h1><span>Control de transportes</span></div></div>
   <nav class="nav">
     <button class="active" data-tab="dashboard">📊 Dashboard</button>
+    <button data-tab="cargamovil">⚡ Carga rápida</button>
     <button data-tab="viajes">🚛 Viajes</button>
+    <button data-tab="deudas">🧾 Deudas</button>
+    <button data-tab="recurrentes">🔁 Recurrentes</button>
+    <button data-tab="cierre">✅ Cierre semanal</button>
     <button data-tab="pagos">💵 Pagos</button>
     <button data-tab="calendario">📅 Calendario</button>
     <button data-tab="trayectos">🧭 Trayectos</button>
@@ -97,6 +103,8 @@ html[data-theme=dark] .card,html[data-theme=dark] .modal,html[data-theme=dark] .
     <div class="card"><div class="section-title"><h3>Estado de pagos</h3><span>pagado / parcial / pendiente</span></div><div id="paymentChart"></div></div>
   </div>
 
+  <div class="card" style="margin-bottom:18px"><div class="section-title"><h3>Alertas operativas</h3><span>vencimientos, deuda y viajes de hoy</span></div><div id="alertsList"></div></div>
+
   <div class="grid kpis">
     <div class="card kpi"><div><div class="label">Viajes activos</div><div class="value" id="kpiActive">0</div></div><div class="icon">🚛</div></div>
     <div class="card kpi"><div><div class="label">Transportes activos</div><div class="value" id="kpiTransport">0</div></div><div class="icon">🚚</div></div>
@@ -118,6 +126,49 @@ html[data-theme=dark] .card,html[data-theme=dark] .modal,html[data-theme=dark] .
     <div class="card"><div class="section-title"><h3>Estado de viaje</h3></div><div id="statusChart"></div></div>
   </div>
 </section>
+
+
+<section class="tab" id="cargamovil">
+  <div class="card"><div class="section-title"><h3>Carga rápida móvil</h3><span>solo campos esenciales</span></div>
+    <form onsubmit="saveQuickTrip(event)" class="grid two">
+      <div class="field"><label>Empresa</label><select id="quickCompany" onchange="renderQuickTransports()"></select></div>
+      <div class="field"><label>Transporte</label><select id="quickTransport"></select></div>
+      <div class="field"><label>Trayecto</label><select id="quickRoute" onchange="applyRouteToQuick()"></select></div>
+      <div class="field"><label>Fecha</label><input type="date" id="quickDate"></div>
+      <div class="field"><label>Monto total</label><input type="number" id="quickAmount" min="0" step="0.01"></div>
+      <div class="field"><label>Pago inicial</label><input type="number" id="quickPaid" min="0" step="0.01" value="0"></div>
+      <div class="field"><label>Origen</label><input id="quickOrigin"></div>
+      <div class="field"><label>Destino principal</label><input id="quickDestination"></div>
+      <div class="actions"><button class="btn green">Guardar rápido</button><button type="button" class="btn secondary" onclick="openTripModal()">Carga completa</button></div>
+    </form>
+  </div>
+</section>
+
+<section class="tab" id="deudas"><div class="card"><div class="section-title"><h3>Panel de deuda por empresa</h3><span>detalle operativo</span></div><div id="debtPanel"></div></div></section>
+
+<section class="tab" id="recurrentes">
+  <div class="grid two"><div class="card"><div class="section-title"><h3>Crear viajes recurrentes</h3><span>genera viajes automáticamente</span></div>
+    <form onsubmit="createRecurringTrips(event)">
+      <div class="formGrid">
+        <div class="field"><label>Empresa</label><select id="recCompany" onchange="renderRecTransports()"></select></div>
+        <div class="field"><label>Transporte</label><select id="recTransport"></select></div>
+        <div class="field"><label>Trayecto</label><select id="recRoute" onchange="applyRouteToRec()"></select></div>
+        <div class="field"><label>Frecuencia</label><select id="recFrequency"><option value="diario">Diario</option><option value="semanal">Semanal</option><option value="cada_x">Cada X días</option><option value="habiles">Solo días hábiles</option></select></div>
+        <div class="field"><label>Cada X días</label><input id="recEveryDays" type="number" min="1" value="3"></div>
+        <div class="field"><label>Cantidad</label><input id="recCount" type="number" min="1" value="4"></div>
+        <div class="field"><label>Desde</label><input id="recStart" type="date"></div>
+        <div class="field"><label>Hasta opcional</label><input id="recEnd" type="date"></div>
+        <div class="field"><label>Monto por viaje</label><input id="recAmount" type="number" min="0" step="0.01"></div>
+        <div class="field"><label>Origen</label><input id="recOrigin"></div>
+      </div><br>
+      <div class="field"><label>Destinos</label><input id="recDestinations" placeholder="Separados por coma. Ej: Delta, Santa Faz"></div><br>
+      <button class="btn green">Generar recurrentes</button>
+    </form></div>
+    <div class="card"><div class="section-title"><h3>Resultado</h3><span>última generación</span></div><div id="recResult" class="summaryBox">Todavía no generaste viajes recurrentes.</div></div>
+  </div>
+</section>
+
+<section class="tab" id="cierre"><div class="grid two"><div class="card"><div class="section-title"><h3>Cierre semanal</h3><span>marcar semana revisada</span></div><div class="filter-grid" style="grid-template-columns:1fr 1fr"><select id="closeWeekSelect"></select><select id="closeYearSelect"></select></div><div class="actions"><button class="btn" onclick="previewWeeklyClose()">Ver cierre</button><button class="btn green" onclick="closeSelectedWeek()">Cerrar semana</button><button class="btn secondary" onclick="downloadWeeklyClose()">Descargar TXT</button></div><br><div id="weeklyCloseText" class="summaryBox">Seleccioná una semana.</div></div><div class="card"><div class="section-title"><h3>Semanas cerradas</h3></div><div id="closedWeeksList"></div></div></div></section>
 
 <section class="tab" id="viajes">
   <div class="card">
@@ -195,7 +246,7 @@ html[data-theme=dark] .card,html[data-theme=dark] .modal,html[data-theme=dark] .
 
 <section class="tab" id="config">
   <div class="grid two">
-    <div class="card"><div class="section-title"><h3>Backup local</h3><span>JSON</span></div><textarea id="importBox" placeholder="Pegá acá un backup JSON"></textarea><br><br><div class="actions"><button class="btn secondary" onclick="exportData()">Exportar JSON</button><button class="btn" onclick="importData()">Importar JSON</button><button class="btn danger" onclick="resetData()">Borrar base</button></div></div>
+    <div class="card"><div class="section-title"><h3>Backup local</h3><span>JSON</span></div><textarea id="importBox" placeholder="Pegá acá un backup JSON"></textarea><br><br><div class="actions"><button class="btn secondary" onclick="exportData()">Exportar JSON</button><button class="btn" onclick="importData()">Importar JSON</button><button class="btn secondary" onclick="exportTripsCSV()">Viajes CSV</button><button class="btn secondary" onclick="exportDebtCSV()">Deuda CSV</button><button class="btn danger" onclick="resetData()">Borrar base</button></div></div>
     <div class="card"><div class="section-title"><h3>Estado del sistema</h3><span>versión local</span></div><div class="summaryBox">Esta versión no usa Google Sheets. Guarda todo en este navegador mediante LocalStorage. Incluye versión limpia, filtros avanzados, pagos parciales, deuda por empresa, trayectos guardados y resumen exportable.</div></div>
   </div>
 </section>
@@ -304,6 +355,37 @@ function deleteTransport(id){if(db.trips.some(t=>t.transportId===id))return toas
 function generateSummary(){let rows=[...db.trips];if(summaryMode?.value==='currentWeek')rows=rows.filter(t=>getWeekInfo(t.date).week===getWeekInfo(todayISO()).week);if(summaryMode?.value==='allDebt')rows=rows.filter(t=>dueAmount(t)>0);if(summaryMode?.value==='filters')rows=getFilteredTrips();if(summaryCompany?.value)rows=rows.filter(t=>t.companyId===summaryCompany.value);const byCompany={};rows.forEach(t=>{const name=company(t.companyId).name;if(!byCompany[name])byCompany[name]=[];byCompany[name].push(t)});let txt=`Resumen de viajes contratados\nFecha: ${new Date().toLocaleDateString('es-AR')}\n\nTotal viajes: ${rows.length}\nTotal: ${money(sum(rows,'amount'))}\nPagado: ${money(sum(rows,t=>t.paidAmount))}\nAdeudado: ${money(sum(rows,dueAmount))}\n\n`;Object.entries(byCompany).forEach(([name,items])=>{txt+=`Empresa: ${name}\nViajes: ${items.length}\nTotal: ${money(sum(items,'amount'))}\nPagado: ${money(sum(items,t=>t.paidAmount))}\nAdeudado: ${money(sum(items,dueAmount))}\nTrayectos:\n`;const routes=countBy(items,normRoute);Object.entries(routes).forEach(([r,c])=>txt+=`- ${r}: ${c} viaje${c>1?'s':''}\n`);txt+='\n'});summaryText.value=txt;return txt}
 function copySummary(){generateSummary();navigator.clipboard?.writeText(summaryText.value);toast('Resumen copiado.')}function downloadSummary(){generateSummary();const blob=new Blob([summaryText.value],{type:'text/plain;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='resumen-viajes.txt';a.click();URL.revokeObjectURL(a.href)}
 function exportData(){importBox.value=JSON.stringify(db,null,2);navigator.clipboard?.writeText(importBox.value);toast('Backup copiado.')}function importData(){try{const d=JSON.parse(importBox.value);if(!d.companies||!d.transports||!d.trips)throw Error();db=d;db.routes=db.routes||[];db.trips=db.trips.map(normalizeTrip);saveDB();toast('Datos importados.')}catch(e){toast('JSON inválido.')}}function resetData(){if(confirm('Esto borra todo. ¿Continuar?')){localStorage.removeItem(STORAGE_KEY);db=loadData();renderAll()}}function toggleTheme(){const r=document.documentElement,d=r.getAttribute('data-theme')==='dark';r.setAttribute('data-theme',d?'light':'dark');localStorage.setItem('control_theme',d?'light':'dark')}function toast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2600)}
+
+// ===== PACK 2: Automatización y control operativo =====
+(function initPack2State(){ db.closedWeeks = db.closedWeeks || []; db.audit = db.audit || []; })();
+function audit(action){ db.audit = db.audit || []; db.audit.unshift({date:new Date().toLocaleString('es-AR'), action}); db.audit = db.audit.slice(0,200); }
+function transportOptionsFor(cid){const active=db.transports.filter(t=>t.status==='activo'&&(!cid||t.companyId===cid));return active.length?active.map(t=>`<option value="${t.id}">${t.plate} - ${t.driver}</option>`).join(''):'<option value="">Sin transportes activos</option>'}
+function renderQuickTransports(){ if(window.quickTransport) quickTransport.innerHTML=transportOptionsFor(quickCompany.value); }
+function renderRecTransports(){ if(window.recTransport) recTransport.innerHTML=transportOptionsFor(recCompany.value); }
+function applyRouteToQuick(){ const r=routeObj(quickRoute.value); if(!r)return; quickOrigin.value=r.origin; quickDestination.value=(r.destinations||[])[0]||''; }
+function applyRouteToRec(){ const r=routeObj(recRoute.value); if(!r)return; recOrigin.value=r.origin; recDestinations.value=(r.destinations||[]).join(', '); }
+function saveQuickTrip(e){e.preventDefault();const dests=quickDestination.value.split(',').map(x=>x.trim()).filter(Boolean);if(!dests.length)return toast('Agregá destino.');const total=Number(quickAmount.value||0);const item={id:uid(),companyId:quickCompany.value,transportId:quickTransport.value,routeId:quickRoute.value,date:quickDate.value||todayISO(),frequency:'unico',everyDays:0,amount:total,paidAmount:Math.min(Number(quickPaid.value||0),total),status:'programado',paymentMethod:'',origin:quickOrigin.value.trim(),destinations:dests,notes:'Carga rápida'};db.trips.push(item);audit('Carga rápida '+normRoute(item));saveDB();toast('Viaje cargado rápido.');}
+function createRecurringTrips(e){e.preventDefault();const r=routeObj(recRoute.value),origin=recOrigin.value.trim()||(r?r.origin:''),destinations=recDestinations.value.split(',').map(x=>x.trim()).filter(Boolean);if(!origin||!destinations.length)return toast('Falta origen o destinos.');let d=new Date((recStart.value||todayISO())+'T00:00:00'),end=recEnd.value?new Date(recEnd.value+'T00:00:00'):null,count=Number(recCount.value||1),created=[];while(created.length<count){if(end&&d>end)break;const day=d.getDay();if(recFrequency.value!=='habiles'||(day!==0&&day!==6)){created.push({id:uid(),companyId:recCompany.value,transportId:recTransport.value,routeId:recRoute.value,date:d.toISOString().slice(0,10),frequency:recFrequency.value,everyDays:Number(recEveryDays.value||0),amount:Number(recAmount.value||0),paidAmount:0,status:'programado',paymentMethod:'',origin,destinations,notes:'Generado recurrente'});}if(recFrequency.value==='diario'||recFrequency.value==='habiles')d.setDate(d.getDate()+1);else if(recFrequency.value==='semanal')d.setDate(d.getDate()+7);else d.setDate(d.getDate()+Number(recEveryDays.value||1));}db.trips.push(...created);audit('Se generaron '+created.length+' viajes recurrentes');recResult.textContent=`Se generaron ${created.length} viajes:\n`+created.map(t=>`- ${fmtDate(t.date)} ${normRoute(t)} ${money(t.amount)}`).join('\n');saveDB();}
+function renderDebtPanel(){if(!window.debtPanel)return;const rows=db.companies.map(c=>{const items=db.trips.filter(t=>t.companyId===c.id);return{c,items,total:sum(items,'amount'),paid:sum(items,t=>t.paidAmount),due:sum(items,dueAmount),count:items.length}}).sort((a,b)=>b.due-a.due);debtPanel.innerHTML=`<div class="tableWrap"><table><thead><tr><th>Empresa</th><th>Viajes</th><th>Total</th><th>Pagado</th><th>Adeudado</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${r.c.name}</td><td>${r.count}</td><td class="money">${money(r.total)}</td><td>${money(r.paid)}</td><td class="money">${money(r.due)}</td><td>${badge(r.due>0?(r.paid>0?'parcial':'pendiente'):'pagado')}</td><td><button class="btn small green" onclick="payCompany('${r.c.id}')">Registrar pago</button> <button class="btn secondary small" onclick="copyCompanyDebt('${r.c.id}')">Copiar</button></td></tr>`).join('')}</tbody></table></div>`;}
+function payCompany(companyId){const dueTrips=db.trips.filter(t=>t.companyId===companyId&&dueAmount(t)>0).sort((a,b)=>a.date.localeCompare(b.date));const total=sum(dueTrips,dueAmount);const val=prompt(`Deuda de ${company(companyId).name}: ${money(total)}. Pago a registrar:`,total);if(val===null)return;let remaining=Number(val||0);if(remaining<=0)return;for(const t of dueTrips){const pay=Math.min(dueAmount(t),remaining);t.paidAmount+=pay;remaining-=pay;if(remaining<=0)break}audit('Pago por empresa '+company(companyId).name+' '+money(Number(val||0)));saveDB();}
+function copyCompanyDebt(companyId){const items=db.trips.filter(t=>t.companyId===companyId&&dueAmount(t)>0);const txt=`Deuda ${company(companyId).name}\nViajes pendientes: ${items.length}\nAdeudado: ${money(sum(items,dueAmount))}\n`+items.map(t=>`- ${fmtDate(t.date)} ${normRoute(t)}: ${money(dueAmount(t))}`).join('\n');navigator.clipboard?.writeText(txt);toast('Detalle copiado.');}
+function renderAlerts(){if(!window.alertsList)return;const today=todayISO(),over=db.trips.filter(t=>t.date<today&&t.status==='programado'),todayTrips=db.trips.filter(t=>t.date===today),highDebt=db.companies.map(c=>({c,due:sum(db.trips.filter(t=>t.companyId===c.id),dueAmount)})).filter(x=>x.due>0).sort((a,b)=>b.due-a.due).slice(0,3);let html='';if(todayTrips.length)html+=`<div class="alert-card"><strong>📅 Hoy hay ${todayTrips.length} viaje(s) programado(s)</strong></div>`;if(over.length)html+=`<div class="alert-card"><strong>⚠️ ${over.length} viaje(s) vencido(s) siguen programados</strong></div>`;highDebt.forEach(x=>html+=`<div class="alert-card"><strong>💵 ${x.c.name}: ${money(x.due)} adeudados</strong></div>`);alertsList.innerHTML=html||'<div class="empty">Sin alertas importantes.</div>';}
+function renderCloseSelectors(){if(!window.closeWeekSelect)return;const groups=groupByWeek(db.trips);closeWeekSelect.innerHTML=groups.map(g=>`<option value="${g.week}">Semana ${g.week}</option>`).join('');closeYearSelect.innerHTML=[...new Set(groups.map(g=>g.year))].map(y=>`<option value="${y}">${y}</option>`).join('');}
+function selectedWeekTrips(){return db.trips.filter(t=>String(getWeekInfo(t.date).week)===String(closeWeekSelect.value)&&String(getWeekInfo(t.date).year)===String(closeYearSelect.value));}
+function weeklyCloseSummary(){const rows=selectedWeekTrips(),w=closeWeekSelect.value,y=closeYearSelect.value;let txt=`Cierre Semana ${w} / ${y}\nViajes: ${rows.length}\nTotal: ${money(sum(rows,'amount'))}\nPagado: ${money(sum(rows,t=>t.paidAmount))}\nAdeudado: ${money(sum(rows,dueAmount))}\n\n`;const by=countBy(rows,t=>company(t.companyId).name);Object.keys(by).forEach(name=>{const items=rows.filter(t=>company(t.companyId).name===name);txt+=`${name}: ${items.length} viajes · Total ${money(sum(items,'amount'))} · Adeudado ${money(sum(items,dueAmount))}\n`});return txt;}
+function previewWeeklyClose(){if(!window.weeklyCloseText||!closeWeekSelect.value)return;weeklyCloseText.textContent=weeklyCloseSummary();}
+function closeSelectedWeek(){const key=`${closeYearSelect.value}-S${closeWeekSelect.value}`;db.closedWeeks=db.closedWeeks||[];if(!db.closedWeeks.find(x=>x.key===key))db.closedWeeks.push({key,week:closeWeekSelect.value,year:closeYearSelect.value,date:new Date().toLocaleString('es-AR'),summary:weeklyCloseSummary()});audit('Se cerró '+key);saveDB();toast('Semana cerrada.');}
+function renderClosedWeeks(){if(!window.closedWeeksList)return;db.closedWeeks=db.closedWeeks||[];closedWeeksList.innerHTML=db.closedWeeks.length?db.closedWeeks.map(w=>`<div class="route-card"><strong>Semana ${w.week} / ${w.year} ${badge('cerrada')}</strong><div class="route-meta"><span>${w.date}</span></div><button class="btn secondary small" onclick="navigator.clipboard.writeText(db.closedWeeks.find(x=>x.key==='${w.key}').summary);toast('Cierre copiado')">Copiar cierre</button></div>`).join(''):'<div class="empty">No hay semanas cerradas.</div>';}
+function downloadWeeklyClose(){previewWeeklyClose();downloadText('cierre-semanal.txt',weeklyCloseText.textContent);}
+function csvEscape(v){return `"${String(v??'').replaceAll('"','""')}"`}
+function exportTripsCSV(){const rows=[['fecha','semana','empresa','transporte','trayecto','total','pagado','adeudado','estado_viaje','estado_pago'],...db.trips.map(t=>[t.date,getWeekInfo(t.date).week,company(t.companyId).name,transport(t.transportId).plate,normRoute(t),t.amount,t.paidAmount,dueAmount(t),t.status,paymentStatus(t)])];downloadText('viajes.csv',rows.map(r=>r.map(csvEscape).join(',')).join('\n'));}
+function exportDebtCSV(){const rows=[['empresa','viajes','total','pagado','adeudado'],...db.companies.map(c=>{const items=db.trips.filter(t=>t.companyId===c.id);return[c.name,items.length,sum(items,'amount'),sum(items,t=>t.paidAmount),sum(items,dueAmount)]})];downloadText('deuda-empresas.csv',rows.map(r=>r.map(csvEscape).join(',')).join('\n'));}
+function downloadText(name,text){const blob=new Blob([text],{type:'text/plain;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href)}
+// Sobrescribe duplicar simple por duplicación avanzada
+function duplicateTrip(id,mode='tomorrow'){const t=db.trips.find(x=>x.id===id);if(!t)return;const d=new Date(t.date+'T00:00:00');if(mode==='tomorrow')d.setDate(d.getDate()+1);else if(mode==='nextWeek')d.setDate(d.getDate()+7);else d.setDate(d.getDate()+1);const copy={...JSON.parse(JSON.stringify(t)),id:uid(),date:d.toISOString().slice(0,10),paidAmount:0,status:'programado',notes:(t.notes||'')+' (duplicado)'};db.trips.push(copy);audit('Se duplicó viaje '+normRoute(copy));saveDB();toast('Viaje duplicado.');}
+// Sobrescribe renderAll para incluir Pack 2
+function renderAll(){renderFilters();renderKpis();renderUpcoming();renderTrips();renderPayments();renderCalendar();renderRoutes();renderCompanies();renderTransports();renderReports();renderCharts();renderSelects();renderDebtPanel();renderAlerts();renderCloseSelectors();renderClosedWeeks();generateSummary(); if(window.quickDate&&!quickDate.value)quickDate.value=todayISO(); if(window.recStart&&!recStart.value)recStart.value=todayISO(); if(window.quickCompany){quickCompany.innerHTML=db.companies.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');quickRoute.innerHTML='<option value="">Sin trayecto guardado</option>'+db.routes.map(r=>`<option value="${r.id}">${r.name}</option>`).join('');renderQuickTransports();} if(window.recCompany){recCompany.innerHTML=db.companies.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');recRoute.innerHTML='<option value="">Sin trayecto guardado</option>'+db.routes.map(r=>`<option value="${r.id}">${r.name}</option>`).join('');renderRecTransports();}}
+
 const theme=localStorage.getItem('control_theme');if(theme)document.documentElement.setAttribute('data-theme',theme);addRouteDestination();renderAll();
 </script>
 </body>
